@@ -1,0 +1,12 @@
+# Default owners for everything in the repo.
+*                       @kya-os/spec-maintainers
+
+# The protocol-core source of truth and the published schema tree.
+/packages/protocol-core/ @kya-os/spec-maintainers
+/schemas/               @kya-os/spec-maintainers
+
+# The specification site.
+/site/                  @kya-os/spec-maintainers
+
+# The compatibility registry is reviewed by the registry maintainers.
+/registry/              @kya-os/registry-maintainers

@@ -1,0 +1,20 @@
+{
+  "name": "@kya-os/schema",
+  "version": "0.0.0",
+  "description": "KYA-OS protocol schema definitions and JSON Schema generator (source of truth)",
+  "type": "module",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "schemas"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "gen": "node scripts/emit-schemas.mjs",
+    "drift": "node scripts/drift-gate.mjs",
+    "test": "vitest run"
+  }
+}

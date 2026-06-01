@@ -1,0 +1,28 @@
+{
+  "name": "kya-os-schema-workspace",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Source of truth for the KYA-OS protocol schemas, specification site, and compatibility registry",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@9.15.9",
+  "scripts": {
+    "build": "pnpm -r --filter ./packages/* run build",
+    "test": "pnpm -r --filter ./packages/* run test && sh .husky/test-hooks.sh",
+    "gen": "pnpm --filter @kya-os/schema run gen",
+    "drift": "pnpm --filter @kya-os/schema run drift",
+    "validate-registry": "node registry/cli.js validate"
+  },
+  "keywords": [
+    "kya-os",
+    "json-schema",
+    "agent-identity",
+    "delegation",
+    "did",
+    "verifiable-credentials",
+    "dif"
+  ]
+}
