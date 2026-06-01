@@ -16,5 +16,10 @@
     "gen": "node scripts/emit-schemas.mjs",
     "drift": "node scripts/drift-gate.mjs",
     "test": "vitest run"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "vitest": "3.1.1"
   }
 }
