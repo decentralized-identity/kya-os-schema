@@ -1,0 +1,28 @@
+#!/usr/bin/env sh
+
+# Commit message gate for the KYA-OS schema repository.
+#
+# This is a standards-track repository. Two invariants are enforced on every
+# commit message:
+#   1. A Developer Certificate of Origin sign-off is mandatory (DCO).
+#   2. No assistant/tooling attribution may appear in the project history.
+#
+# Both are hard failures. Use `git commit -s` to add the sign-off.
+
+msg_file="$1"
+msg="$(cat "$msg_file")"
+
+# 1. DCO sign-off must be present.
+if ! printf '%s\n' "$msg" | grep -qiE '^Signed-off-by: .+ <.+@.+>'; then
+  echo "commit-msg: missing 'Signed-off-by:' trailer (DCO required)." >&2
+  echo "            re-run with: git commit -s" >&2
+  exit 1
+fi
+
+# 2. Reject assistant/tooling attribution in the commit message.
+if printf '%s\n' "$msg" | grep -qiE 'co-authored-by:[[:space:]]*(claude|anthropic)|generated with|claude code|🤖|ai-assisted|noreply@anthropic\.com'; then
+  echo "commit-msg: assistant/tooling attribution is not permitted in this repository." >&2
+  exit 1
+fi
+
+exit 0

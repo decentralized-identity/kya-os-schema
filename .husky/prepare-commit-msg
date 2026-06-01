@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+
+# Strip any assistant/tooling attribution trailers that a local commit
+# template or editor integration may have injected, before the message is
+# finalized. The commit-msg hook is the hard gate; this is a courtesy scrub
+# so a well-intentioned local config does not cause an avoidable rejection.
+
+msg_file="$1"
+
+# Remove lines that attribute the change to an assistant/tool.
+grep -viE 'co-authored-by:[[:space:]]*(claude|anthropic)|generated with \[?claude|claude code|🤖 generated' "$msg_file" > "$msg_file.tmp" 2>/dev/null \
+  && mv "$msg_file.tmp" "$msg_file"
+
+exit 0

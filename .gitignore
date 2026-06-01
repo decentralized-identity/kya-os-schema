@@ -1,0 +1,25 @@
+node_modules/
+dist/
+coverage/
+.DS_Store
+*.tgz
+
+# Build outputs that are regenerated; the published schema tree under
+# schemas/ is intentionally tracked so the drift gate can diff committed bytes.
+.next/
+site/.next/
+site/out/
+*.tsbuildinfo
+
+# Local tooling artifacts. Kept out of the tree so contributors' local
+# assistant or editor configs never leak into the public repository.
+CLAUDE.md
+CLAUDE_*.md
+AGENTS.md
+.claude/
+.cursorrules
+.cursor/
+.aider*
+.codex/
+.windsurfrules
+.github/copilot-instructions.md
