@@ -29,11 +29,29 @@ describe("donation-sync drift gate", () => {
   });
 
   it("bites when a published schema diverges from the donated source", () => {
-    // Feed a deliberately-mutated published copy and confirm the gate flags it.
+    // Keep a valid, matching $id so the entry pairs with the donated schema,
+    // but change the bytes — this exercises real content drift, not a parse miss.
+    const tampered = JSON.stringify({
+      $schema: "https://json-schema.org/draft/2020-12/schema",
+      $id: "https://schema.kya-os.ai/v1/protocol/well-known/v1.0.0",
+      title: "tampered",
+    });
     const mutated = donationSyncDiffs(repoRoot, {
-      "well-known/v1.0.0.json": '{"$id":"tampered"}',
+      "well-known/v1.0.0.json": tampered,
     });
     expect(mutated.length).toBeGreaterThan(0);
     expect(mutated[0]).toContain("well-known");
+    expect(mutated[0]).toContain("drift");
+  });
+
+  it("flags a published schema whose $id matches no donated schema", () => {
+    const orphan = JSON.stringify({
+      $schema: "https://json-schema.org/draft/2020-12/schema",
+      $id: "https://schema.kya-os.ai/v1/protocol/well-known/v9.9.9",
+    });
+    const mutated = donationSyncDiffs(repoRoot, {
+      "well-known/v1.0.0.json": orphan,
+    });
+    expect(mutated.some((d) => d.includes("no donated schema"))).toBe(true);
   });
 });
