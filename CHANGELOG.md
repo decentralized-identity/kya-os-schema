@@ -19,3 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `$id`.
 - `@kya-os/schema` package with a parameterized schema base URL and a test
   suite asserting draft, `$id`, title, validator compilation, and naming.
+- Cloudflare Pages publishing pipeline: a `build:pages` step emitting a `dist/`
+  artifact that serves each schema at both its extensionless `$id` and `.json`
+  path (with `application/schema+json`, open CORS, and caching) plus a
+  `schema-index.json`, and a `Deploy schemas` workflow that uploads it to
+  `schema.kya-os.org`.
