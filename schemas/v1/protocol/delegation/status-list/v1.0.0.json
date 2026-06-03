@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.kya-os.org/v1/protocol/delegation/status-list/v1.0.0",
+  "title": "KYA-OS StatusList2021 Credential",
+  "description": "W3C StatusList2021 Verifiable Credential used to publish delegation revocation or suspension state. The interoperable wire format for revocation when delegator and verifier are operationally decoupled (KYA-OS L3).",
+  "type": "object",
+  "required": ["@context", "type", "issuer", "issuanceDate", "credentialSubject"],
+  "properties": {
+    "@context": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          { "type": "string", "format": "uri" },
+          { "type": "object" }
+        ]
+      },
+      "minItems": 2,
+      "description": "JSON-LD context. MUST include the W3C VC context and the StatusList2021 context."
+    },
+    "id": {
+      "type": "string",
+      "format": "uri",
+      "description": "Status list credential identifier; the URL that credentialStatus entries reference."
+    },
+    "type": {
+      "type": "array",
+      "items": { "type": "string" },
+      "contains": { "const": "StatusList2021Credential" },
+      "minItems": 2,
+      "description": "Credential types. MUST include 'VerifiableCredential' and 'StatusList2021Credential'."
+    },
+    "issuer": {
+      "oneOf": [
+        { "type": "string", "pattern": "^did:.+$" },
+        {
+          "type": "object",
+          "required": ["id"],
+          "properties": {
+            "id": { "type": "string", "pattern": "^did:.+$" }
+          }
+        }
+      ],
+      "description": "Issuer DID or issuer object containing id."
+    },
+    "issuanceDate": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 datetime when the status list was issued."
+    },
+    "expirationDate": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 datetime when the status list expires."
+    },
+    "credentialSubject": {
+      "$ref": "#/$defs/StatusList2021Subject"
+    },
+    "proof": {
+      "type": "object",
+      "description": "Embedded proof over the status list credential.",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "StatusList2021Subject": {
+      "type": "object",
+      "required": ["type", "statusPurpose", "encodedList"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uri",
+          "description": "Identifier of the status list (typically the credential id with a '#list' fragment)."
+        },
+        "type": {
+          "type": "string",
+          "const": "StatusList2021"
+        },
+        "statusPurpose": {
+          "type": "string",
+          "enum": ["revocation", "suspension"],
+          "description": "Whether entries in this list encode revocation or suspension."
+        },
+        "encodedList": {
+          "type": "string",
+          "minLength": 1,
+          "description": "GZIP-compressed, base64url-encoded bitstring. A set bit at a credential's statusListIndex marks it revoked/suspended."
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "examples": [
+    {
+      "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://w3id.org/vc/status-list/2021/v1"
+      ],
+      "id": "https://schema.kya-os.org/status/1",
+      "type": ["VerifiableCredential", "StatusList2021Credential"],
+      "issuer": "did:web:example.com",
+      "issuanceDate": "2024-03-01T00:00:00Z",
+      "credentialSubject": {
+        "id": "https://schema.kya-os.org/status/1#list",
+        "type": "StatusList2021",
+        "statusPurpose": "revocation",
+        "encodedList": "H4sIAAAAAAAAA-3BMQEAAADCoPVPbQwfoAAAAAAAAAAAAAAAAAAAAIC3AYbSVKsAQAAA"
+      }
+    }
+  ]
+}

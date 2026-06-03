@@ -40,6 +40,21 @@ const EXPECTED = [
     id: "https://schema.kya-os.ai/v1/protocol/well-known/v1.0.0",
     title: "KYA-OS Discovery Document",
   },
+  {
+    file: "delegation/status-list/v1.0.0.json",
+    id: "https://schema.kya-os.org/v1/protocol/delegation/status-list/v1.0.0",
+    title: "KYA-OS StatusList2021 Credential",
+  },
+  {
+    file: "audit/record/v1.0.0.json",
+    id: "https://schema.kya-os.org/v1/protocol/audit/record/v1.0.0",
+    title: "KYA-OS Audit Record",
+  },
+  {
+    file: "authorization/needs-authorization/v1.0.0.json",
+    id: "https://schema.kya-os.org/v1/protocol/authorization/needs-authorization/v1.0.0",
+    title: "KYA-OS Needs-Authorization Error",
+  },
 ];
 
 function loadSchema(rel: string): Record<string, unknown> {

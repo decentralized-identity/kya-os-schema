@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.kya-os.org/v1/protocol/audit/record/v1.0.0",
+  "title": "KYA-OS Audit Record",
+  "description": "Versioned, portable audit log record summarizing a single verified KYA-OS tool call. Provides a standard, cross-implementation format for compliance and non-repudiation trails (audit.v1).",
+  "type": "object",
+  "required": ["version", "ts", "session", "audience", "did", "kid", "reqHash", "resHash", "verified", "scope"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "audit.v1",
+      "description": "Audit record format version."
+    },
+    "ts": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Unix timestamp in seconds when the record was generated."
+    },
+    "session": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Session identifier the tool call belongs to."
+    },
+    "audience": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Intended audience of the call (server DID or URL)."
+    },
+    "did": {
+      "type": "string",
+      "pattern": "^did:(key|web):.+$",
+      "description": "DID of the agent that made the call."
+    },
+    "kid": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Key identifier of the signing key (matches the proof JWS header kid)."
+    },
+    "reqHash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "SHA-256 hash of the JCS-canonicalized request. Format: 'sha256:<64 hex chars>'."
+    },
+    "resHash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "SHA-256 hash of the JCS-canonicalized response. Format: 'sha256:<64 hex chars>'."
+    },
+    "verified": {
+      "type": "string",
+      "enum": ["yes", "no"],
+      "description": "Whether the call's detached proof verified against the signer's DID."
+    },
+    "scope": {
+      "type": "string",
+      "description": "Scope string associated with the call."
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "version": "audit.v1",
+      "ts": 1710268800,
+      "session": "sess_abc123xyz",
+      "audience": "did:web:example.com",
+      "did": "did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK",
+      "kid": "did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK#z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK",
+      "reqHash": "sha256:72b80a4aa6ab9f53ae8fe727b67b9cb7f49997f362179899271258c3265bfb1c",
+      "resHash": "sha256:1b4f0a1ee7708d4c398ff9a4937b2421a6d3a4824b6a6f1a6be8bacb7ef279da",
+      "verified": "yes",
+      "scope": "read:documents"
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.kya-os.org/v1/protocol/authorization/needs-authorization/v1.0.0",
+  "title": "KYA-OS Needs-Authorization Error",
+  "description": "Error returned when a tool call requires user authorization. The response is itself signed (detached JWS in _meta) so the client can verify the authorizationUrl before trusting it; the client resumes the flow with resumeToken after the user grants authority (SPEC §9.2).",
+  "type": "object",
+  "required": ["error", "message", "authorizationUrl", "resumeToken", "expiresAt", "scopes"],
+  "properties": {
+    "error": {
+      "type": "string",
+      "const": "needs_authorization",
+      "description": "Discriminator identifying this error variant."
+    },
+    "message": {
+      "type": "string",
+      "description": "Human-readable explanation of what authorization is required."
+    },
+    "authorizationUrl": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL where the user grants authorization. Bound by the response proof's responseHash to detect substitution."
+    },
+    "resumeToken": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Opaque token used to resume the flow after authorization is granted."
+    },
+    "expiresAt": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Unix timestamp in seconds when resumeToken expires."
+    },
+    "scopes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Scopes being requested."
+    },
+    "display": {
+      "$ref": "#/$defs/AuthorizationDisplay"
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Optional implementation-specific context carried with the challenge."
+    }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "AuthorizationDisplay": {
+      "type": "object",
+      "description": "Optional presentation hints for rendering the authorization prompt.",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Short title for the authorization prompt."
+        },
+        "hint": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["link", "qr", "code"]
+          },
+          "description": "Preferred presentation modes."
+        },
+        "authorizationCode": {
+          "type": "string",
+          "description": "Short human-enterable code, when 'code' presentation is offered."
+        },
+        "qrUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL to encode as a QR code, when 'qr' presentation is offered."
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "examples": [
+    {
+      "error": "needs_authorization",
+      "message": "Authorization required to send email on the user's behalf.",
+      "authorizationUrl": "https://auth.example.com/grant?token=k7Hy9mNpQrStUvWxYz01Aa",
+      "resumeToken": "rt_9f86d081884c7d659a2feaa0c55ad015",
+      "expiresAt": 1710272400,
+      "scopes": ["email:send"],
+      "display": {
+        "title": "Grant email access",
+        "hint": ["link", "qr"],
+        "qrUrl": "https://auth.example.com/grant?token=k7Hy9mNpQrStUvWxYz01Aa"
+      }
+    }
+  ]
+}
