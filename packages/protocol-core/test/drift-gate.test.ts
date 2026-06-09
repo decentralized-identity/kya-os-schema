@@ -46,15 +46,20 @@ describe("donation-sync drift gate", () => {
     expect(mutated[0]).toContain("drift");
   });
 
-  it("flags a published schema whose $id matches no donated schema", () => {
-    const orphan = JSON.stringify({
-      $schema: "https://json-schema.org/draft/2020-12/schema",
-      $id: "https://schema.kya-os.ai/v1/protocol/well-known/v9.9.9",
-    });
+  it("allows repo-authored canon that has no donated counterpart", () => {
+    // The published tree carries canonical protocol documents the donation does
+    // not (yet) ship (audit record, status list, needs-authorization). Their
+    // $ids resolve to no donated schema, so the gate must NOT treat them as
+    // drift — even when their bytes differ from anything donated. This is the
+    // model: @kya-os/mcp donates a subset; this repo is the canonical superset.
     const mutated = donationSyncDiffs(repoRoot, {
-      "well-known/v1.0.0.json": orphan,
+      "audit/record/v1.0.0.json": JSON.stringify({
+        $schema: "https://json-schema.org/draft/2020-12/schema",
+        $id: "https://schema.kya-os.org/v1/protocol/audit/record/v1.0.0",
+        title: "locally edited repo-authored canon",
+      }),
     });
-    expect(mutated.some((d) => d.includes("no donated schema"))).toBe(true);
+    expect(mutated).toEqual([]);
   });
 
   it("flags a donated schema with no published counterpart", () => {

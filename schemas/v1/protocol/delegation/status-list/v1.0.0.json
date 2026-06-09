@@ -25,9 +25,12 @@
     "type": {
       "type": "array",
       "items": { "type": "string" },
-      "contains": { "const": "StatusList2021Credential" },
       "minItems": 2,
-      "description": "Credential types. MUST include 'VerifiableCredential' and 'StatusList2021Credential'."
+      "allOf": [
+        { "contains": { "const": "VerifiableCredential" } },
+        { "contains": { "const": "StatusList2021Credential" } }
+      ],
+      "description": "Credential types. MUST include both 'VerifiableCredential' and 'StatusList2021Credential' (each enforced by its own contains; a single contains would only require one of them)."
     },
     "issuer": {
       "oneOf": [

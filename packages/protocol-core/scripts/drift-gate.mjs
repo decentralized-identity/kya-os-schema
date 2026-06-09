@@ -38,6 +38,15 @@ for (const file of jsonFiles(donatedDir)) {
 const publishedFiles = jsonFiles(publishedDir);
 const diffs = [];
 
+// Index published schemas by $id. Files with no $id are NOT schemas under the
+// donation contract (e.g. the JSON-LD `@context` document) — skip them; their
+// correctness is covered by the schema test suite, not the drift gate.
+const publishedById = new Map();
+for (const file of publishedFiles) {
+  const id = schemaId(file);
+  if (id) publishedById.set(id, { content: readFileSync(file, "utf8"), rel: relative(publishedDir, file) });
+}
+
 // A missing/unreadable/empty published tree must FAIL the gate — otherwise the
 // loop below has nothing to compare and the gate exits clean while publishing
 // nothing (a silent pass that hides an absent tree).
@@ -49,31 +58,20 @@ if (donatedById.size === 0) {
   diffs.push(`no donated schemas resolved from @kya-os/mcp (donation lookup failed?)`);
 }
 
-const matchedDonatedIds = new Set();
-for (const file of publishedFiles) {
-  const rel = relative(publishedDir, file);
-  const id = schemaId(file);
-  if (!id) {
-    diffs.push(`published schema has no $id: ${rel}`);
-    continue;
-  }
-  const donated = donatedById.get(id);
-  if (!donated) {
-    diffs.push(`no donated schema with $id ${id} (published ${rel})`);
-    continue;
-  }
-  matchedDonatedIds.add(id);
-  if (readFileSync(file, "utf8") !== donated.content) {
-    diffs.push(`drift: ${rel} differs from donated ${donated.name} (same $id ${id})`);
-  }
-}
-
-// Completeness: every donated schema MUST have a matching published document,
-// so a donation that adds a schema can't pass while the published tree is
-// missing the new document entirely.
+// The donation is the source of truth for what MUST be mirrored. Iterate the
+// donated schemas (not the published tree): every donated $id must have a
+// byte-identical published counterpart — enforcing drift detection AND
+// completeness — while ALLOWING the published tree to additionally carry
+// repo-authored canonical documents the donation does not (yet) ship. Those
+// have no donated $id, so they are simply not drift-checked here.
 for (const [id, donated] of donatedById) {
-  if (!matchedDonatedIds.has(id)) {
+  const published = publishedById.get(id);
+  if (!published) {
     diffs.push(`donated schema $id ${id} (${donated.name}) has no published counterpart`);
+    continue;
+  }
+  if (published.content !== donated.content) {
+    diffs.push(`drift: published ${published.rel} differs from donated ${donated.name} (same $id ${id})`);
   }
 }
 
@@ -82,7 +80,7 @@ if (diffs.length > 0) {
   for (const d of diffs) console.error(`  - ${d}`);
   process.exit(1);
 }
-console.log(`Schema drift gate passed: ${matchedDonatedIds.size} schemas in sync with @kya-os/mcp.`);
+console.log(`Schema drift gate passed: ${donatedById.size} donated schemas in sync with @kya-os/mcp.`);
 
 function jsonFiles(dir) {
   const out = [];

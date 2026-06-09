@@ -4,7 +4,7 @@
   "title": "KYA-OS Audit Record",
   "description": "Versioned, portable audit log record summarizing a single verified KYA-OS tool call. Provides a standard, cross-implementation format for compliance and non-repudiation trails (audit.v1).",
   "type": "object",
-  "required": ["version", "ts", "session", "audience", "did", "kid", "reqHash", "resHash", "verified", "scope"],
+  "required": ["version", "ts", "session", "audience", "did", "kid", "reqHash", "verified", "scope"],
   "properties": {
     "version": {
       "type": "string",
@@ -44,7 +44,7 @@
     "resHash": {
       "type": "string",
       "pattern": "^sha256:[a-f0-9]{64}$",
-      "description": "SHA-256 hash of the JCS-canonicalized response. Format: 'sha256:<64 hex chars>'."
+      "description": "SHA-256 hash of the JCS-canonicalized response. Format: 'sha256:<64 hex chars>'. Optional: omitted when the call produced no response body to bind (e.g. a denied or step-up-required outcome), mirroring the optional responseHash in the detached-proof schema."
     },
     "verified": {
       "type": "string",
