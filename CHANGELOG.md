@@ -24,3 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   path (with `application/schema+json`, open CORS, and caching) plus a
   `schema-index.json`, and a `Deploy schemas` workflow that uploads it to
   `schema.kya-os.org`.
+- Donation-sync drift gate (`pnpm run drift`) verifying the published schemas
+  stay byte-identical to the schemas shipped by the donated `@kya-os/mcp`
+  package, with tests proving the gate bites on divergence.
+- Continuous integration: a test/drift job and a hygiene job rejecting retired
+  protocol naming and tooling attribution in content and commit history.

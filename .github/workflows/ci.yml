@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Test
+        run: pnpm test
+      - name: Schema drift gate
+        run: pnpm run drift
+
+  hygiene:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Reject retired protocol naming in content
+        run: |
+          # The matcher strings legitimately appear in the hygiene tooling and
+          # in this workflow; scope the scan to project content.
+          if git grep -nIiE 'mcp[-_ ]?i\b' -- \
+              ':!.husky/**' ':!.github/workflows/**' ':!**/node_modules/**' \
+              ; then
+            echo "::error::Retired 'MCP-I' naming found in content. Use the kya-os equivalent."
+            exit 1
+          fi
+          echo "No retired protocol naming found."
+      - name: Reject assistant/tooling attribution
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          # No assistant/tooling attribution anywhere in tracked content or in
+          # the commit history of this push/PR. The hygiene tooling and this
+          # workflow contain the matcher strings by necessity and are excluded.
+          #
+          # The pattern is kept byte-identical to .husky/commit-msg so CI is
+          # never weaker than the local hook (catches ai-assisted, the robot
+          # emoji, and any bare "generated with" line — not only Claude ones).
+          ATTR='co-authored-by:[[:space:]]*(claude|anthropic)|generated with|claude code|🤖|ai-assisted|noreply@anthropic\.com'
+          if git grep -nIiE "$ATTR" -- \
+              ':!.husky/**' ':!.github/workflows/**' ':!**/node_modules/**' \
+              ; then
+            echo "::error::Assistant/tooling attribution found in tracked content."
+            exit 1
+          fi
+          # Scan every commit introduced by this push/PR, not just the tip:
+          # PR runs diff from the base SHA; push runs diff from the pre-push SHA
+          # (github.event.before). On a brand-new branch (zero sentinel) there is
+          # no prior ref, so fall back to scanning all of HEAD's history.
+          base="${PR_BASE_SHA:-$PUSH_BEFORE_SHA}"
+          if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ]; then
+            range='HEAD'
+          else
+            range="$base..HEAD"
+          fi
+          if git log --format='%an <%ae>%n%cn <%ce>%n%B' "$range" \
+              | grep -iE "$ATTR"; then
+            echo "::error::Assistant/tooling attribution found in commit history."
+            exit 1
+          fi
+          echo "No assistant/tooling attribution found."
