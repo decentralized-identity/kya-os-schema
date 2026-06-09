@@ -25,5 +25,8 @@
     "did",
     "verifiable-credentials",
     "dif"
-  ]
+  ],
+  "devDependencies": {
+    "wrangler": "3"
+  }
 }
