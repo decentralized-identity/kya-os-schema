@@ -8,6 +8,10 @@
  * non-zero with a description of every mismatch, so a divergence fails CI rather
  * than shipping a published schema that has drifted from the donation.
  *
+ * The comparison MIRRORS `donationSyncDiffs` in `src/drift.ts`, which the test
+ * suite exercises (`test/drift-gate.test.ts`). The tests are the canonical
+ * statement of the contract; keep this script's checks in lockstep with them.
+ *
  * Run: node scripts/drift-gate.mjs   (or: pnpm run drift)
  */
 import { readdirSync, readFileSync, statSync } from "node:fs";
@@ -31,9 +35,22 @@ for (const file of jsonFiles(donatedDir)) {
   if (id) donatedById.set(id, { content: readFileSync(file, "utf8"), name: relative(donatedDir, file) });
 }
 
+const publishedFiles = jsonFiles(publishedDir);
 const diffs = [];
-let checked = 0;
-for (const file of jsonFiles(publishedDir)) {
+
+// A missing/unreadable/empty published tree must FAIL the gate — otherwise the
+// loop below has nothing to compare and the gate exits clean while publishing
+// nothing (a silent pass that hides an absent tree).
+if (publishedFiles.length === 0) {
+  diffs.push(`no published schemas found under schemas/v1/protocol (missing, unreadable, or empty tree)`);
+}
+// Donation resolution yielding zero schemas is likewise a failure, not a pass.
+if (donatedById.size === 0) {
+  diffs.push(`no donated schemas resolved from @kya-os/mcp (donation lookup failed?)`);
+}
+
+const matchedDonatedIds = new Set();
+for (const file of publishedFiles) {
   const rel = relative(publishedDir, file);
   const id = schemaId(file);
   if (!id) {
@@ -45,9 +62,18 @@ for (const file of jsonFiles(publishedDir)) {
     diffs.push(`no donated schema with $id ${id} (published ${rel})`);
     continue;
   }
-  checked++;
+  matchedDonatedIds.add(id);
   if (readFileSync(file, "utf8") !== donated.content) {
     diffs.push(`drift: ${rel} differs from donated ${donated.name} (same $id ${id})`);
+  }
+}
+
+// Completeness: every donated schema MUST have a matching published document,
+// so a donation that adds a schema can't pass while the published tree is
+// missing the new document entirely.
+for (const [id, donated] of donatedById) {
+  if (!matchedDonatedIds.has(id)) {
+    diffs.push(`donated schema $id ${id} (${donated.name}) has no published counterpart`);
   }
 }
 
@@ -56,7 +82,7 @@ if (diffs.length > 0) {
   for (const d of diffs) console.error(`  - ${d}`);
   process.exit(1);
 }
-console.log(`Schema drift gate passed: ${checked} schemas in sync with @kya-os/mcp.`);
+console.log(`Schema drift gate passed: ${matchedDonatedIds.size} schemas in sync with @kya-os/mcp.`);
 
 function jsonFiles(dir) {
   const out = [];

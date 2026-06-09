@@ -65,12 +65,39 @@ export function donationSyncDiffs(
   const donatedById = new Map<string, { content: string; name: string }>();
   for (const file of jsonFiles(donatedDir)) {
     const id = schemaId(file);
-    if (id) donatedById.set(id, { content: readFileSync(file, "utf8"), name: relative(donatedDir, file) });
+    if (id)
+      donatedById.set(id, {
+        content: readFileSync(file, "utf8"),
+        name: relative(donatedDir, file),
+      });
   }
 
-  for (const file of jsonFiles(publishedDir)) {
+  const publishedFiles = jsonFiles(publishedDir);
+
+  // A missing/unreadable/empty published tree must FAIL the gate. Otherwise the
+  // per-file comparison below has nothing to iterate and the gate exits clean
+  // while publishing nothing — a silent pass that hides an absent tree.
+  if (publishedFiles.length === 0) {
+    diffs.push(
+      `no published schemas found under schemas/v1/protocol (missing, unreadable, or empty tree)`,
+    );
+  }
+  // Likewise, if donation resolution yields zero schemas there is nothing to
+  // compare against — treat that as a failure, not a pass.
+  if (donatedById.size === 0) {
+    diffs.push(
+      `no donated schemas resolved from @kya-os/mcp (donation lookup failed?)`,
+    );
+  }
+
+  // Track which donated $ids were actually matched by a published document, so
+  // we can require completeness in both directions below.
+  const matchedDonatedIds = new Set<string>();
+
+  for (const file of publishedFiles) {
     const rel = relative(publishedDir, file).split(sep).join("/");
-    const published = rel in overrides ? overrides[rel] : readFileSync(file, "utf8");
+    const published =
+      rel in overrides ? overrides[rel] : readFileSync(file, "utf8");
 
     const id = rel in overrides ? safeId(published) : schemaId(file);
     if (!id) {
@@ -82,8 +109,23 @@ export function donationSyncDiffs(
       diffs.push(`no donated schema with $id ${id} (published ${rel})`);
       continue;
     }
+    matchedDonatedIds.add(id);
     if (published !== donated.content) {
-      diffs.push(`drift: published ${rel} differs from donated ${donated.name} (same $id ${id})`);
+      diffs.push(
+        `drift: published ${rel} differs from donated ${donated.name} (same $id ${id})`,
+      );
+    }
+  }
+
+  // Completeness: every donated schema MUST have a matching published document.
+  // Without this, bumping @kya-os/mcp so the donation gains a schema would still
+  // pass (the published files all match) while the published tree is missing the
+  // new document entirely.
+  for (const [id, donated] of donatedById) {
+    if (!matchedDonatedIds.has(id)) {
+      diffs.push(
+        `donated schema $id ${id} (${donated.name}) has no published counterpart`,
+      );
     }
   }
 

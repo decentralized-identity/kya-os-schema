@@ -42,18 +42,36 @@ jobs:
           fi
           echo "No retired protocol naming found."
       - name: Reject assistant/tooling attribution
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE_SHA: ${{ github.event.before }}
         run: |
           # No assistant/tooling attribution anywhere in tracked content or in
           # the commit history of this push/PR. The hygiene tooling and this
           # workflow contain the matcher strings by necessity and are excluded.
-          if git grep -nIiE 'co-authored-by:[[:space:]]*(claude|anthropic)|generated with \[?claude|claude code|noreply@anthropic\.com' -- \
+          #
+          # The pattern is kept byte-identical to .husky/commit-msg so CI is
+          # never weaker than the local hook (catches ai-assisted, the robot
+          # emoji, and any bare "generated with" line — not only Claude ones).
+          ATTR='co-authored-by:[[:space:]]*(claude|anthropic)|generated with|claude code|🤖|ai-assisted|noreply@anthropic\.com'
+          if git grep -nIiE "$ATTR" -- \
               ':!.husky/**' ':!.github/workflows/**' ':!**/node_modules/**' \
               ; then
             echo "::error::Assistant/tooling attribution found in tracked content."
             exit 1
           fi
-          if git log --format='%an <%ae>%n%cn <%ce>%n%B' "${{ github.event.pull_request.base.sha || 'HEAD~1' }}..HEAD" \
-              | grep -iE 'co-authored-by:[[:space:]]*(claude|anthropic)|noreply@anthropic\.com|generated with \[?claude'; then
+          # Scan every commit introduced by this push/PR, not just the tip:
+          # PR runs diff from the base SHA; push runs diff from the pre-push SHA
+          # (github.event.before). On a brand-new branch (zero sentinel) there is
+          # no prior ref, so fall back to scanning all of HEAD's history.
+          base="${PR_BASE_SHA:-$PUSH_BEFORE_SHA}"
+          if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ]; then
+            range='HEAD'
+          else
+            range="$base..HEAD"
+          fi
+          if git log --format='%an <%ae>%n%cn <%ce>%n%B' "$range" \
+              | grep -iE "$ATTR"; then
             echo "::error::Assistant/tooling attribution found in commit history."
             exit 1
           fi
