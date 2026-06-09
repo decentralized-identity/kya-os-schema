@@ -1,0 +1,53 @@
+name: Deploy schemas
+
+# Publishes the versioned schema tree to Cloudflare Pages at schema.kya-os.org.
+# Requires repository secrets CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID,
+# and a Pages project named `kya-os-schema` in the DIF Cloudflare account with
+# schema.kya-os.org bound as a custom domain.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "schemas/**"
+      - "scripts/build-pages.mjs"
+      - ".github/workflows/deploy-schemas.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-schemas
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Re-run the same validation gates as CI INSIDE the deploy job, before any
+      # upload. A push to main runs CI and this workflow concurrently, so a
+      # workflow_run/needs dependency would still race (and would be skipped on
+      # workflow_dispatch); running the gates here makes the deploy itself
+      # fail-closed — dist/ is never published unless the tests and the drift
+      # gate pass on the exact commit being deployed.
+      - name: Test
+        run: pnpm test
+      - name: Schema drift gate
+        run: pnpm run drift
+      - name: Build Pages artifact
+        run: node scripts/build-pages.mjs
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=kya-os-schema --branch=main

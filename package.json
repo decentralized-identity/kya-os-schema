@@ -14,7 +14,8 @@
     "test": "pnpm -r --filter ./packages/* run test && sh .husky/test-hooks.sh",
     "gen": "pnpm --filter @kya-os/schema run gen",
     "drift": "pnpm --filter @kya-os/schema run drift",
-    "validate-registry": "node registry/cli.js validate"
+    "validate-registry": "node registry/cli.js validate",
+    "build:pages": "node scripts/build-pages.mjs"
   },
   "keywords": [
     "kya-os",
