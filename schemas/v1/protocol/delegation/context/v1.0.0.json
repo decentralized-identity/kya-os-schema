@@ -1,0 +1,21 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@vocab": "https://schema.kya-os.org/ns/delegation#",
+    "id": "@id",
+    "type": "@type",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "DelegationCredential": "https://schema.kya-os.org/ns/delegation#DelegationCredential",
+    "issuerDid": { "@type": "@id" },
+    "subjectDid": { "@type": "@id" },
+    "userDid": { "@type": "@id" },
+    "controller": { "@type": "@id" },
+    "scopes": { "@container": "@set" },
+    "audience": { "@container": "@set" },
+    "createdAt": { "@type": "xsd:integer" },
+    "notBefore": { "@type": "xsd:integer" },
+    "notAfter": { "@type": "xsd:integer" },
+    "cap": { "@type": "xsd:double" },
+    "durationSec": { "@type": "xsd:integer" }
+  }
+}
