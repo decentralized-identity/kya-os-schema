@@ -76,7 +76,9 @@ export function donationSyncDiffs(
 
   // Index published schemas by $id. Files with no $id are NOT schemas under the
   // donation contract (e.g. the JSON-LD `@context` document) — skip them rather
-  // than flag them; their correctness is covered by the schema test suite.
+  // than flag them. Such files are covered instead by the dedicated
+  // "delegation JSON-LD @context" suite in test/published-schemas.test.ts (valid
+  // JSON, required terms), so skipping here does not leave them unvalidated.
   const publishedById = new Map<string, { content: string; rel: string }>();
   for (const file of publishedFiles) {
     const rel = relative(publishedDir, file).split(sep).join("/");

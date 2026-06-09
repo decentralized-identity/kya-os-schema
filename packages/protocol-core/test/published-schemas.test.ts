@@ -69,24 +69,83 @@ describe("published protocol schemas", () => {
     expect(schema.$schema).toBe("https://json-schema.org/draft/2020-12/schema");
   });
 
-  it.each(EXPECTED)("$file carries its canonical $id and title", ({ file, id, title }) => {
-    const schema = loadSchema(file);
-    expect(schema.$id).toBe(id);
-    expect(schema.title).toBe(title);
-  });
+  it.each(EXPECTED)(
+    "$file carries its canonical $id and title",
+    ({ file, id, title }) => {
+      const schema = loadSchema(file);
+      expect(schema.$id).toBe(id);
+      expect(schema.title).toBe(title);
+    },
+  );
 
-  it.each(EXPECTED)("$file compiles under the 2020-12 validator", ({ file }) => {
-    const schema = loadSchema(file);
-    const ajv = new Ajv2020({ strict: false, allErrors: true });
-    addFormats(ajv);
-    // Compiling proves the schema is well-formed and all internal $refs resolve.
-    expect(() => ajv.compile(schema)).not.toThrow();
-  });
+  it.each(EXPECTED)(
+    "$file compiles under the 2020-12 validator",
+    ({ file }) => {
+      const schema = loadSchema(file);
+      const ajv = new Ajv2020({ strict: false, allErrors: true });
+      addFormats(ajv);
+      // Compiling proves the schema is well-formed and all internal $refs resolve.
+      expect(() => ajv.compile(schema)).not.toThrow();
+    },
+  );
 
   it("carries no retired protocol naming in any published schema", () => {
     for (const { file } of EXPECTED) {
       const raw = readFileSync(join(schemasDir, file), "utf8");
-      expect(raw, `${file} contains retired naming`).not.toMatch(/mcp[-_ ]?i\b/i);
+      expect(raw, `${file} contains retired naming`).not.toMatch(
+        /mcp[-_ ]?i\b/i,
+      );
     }
+  });
+});
+
+/**
+ * The JSON-LD `@context` document for delegation credentials. It is NOT a JSON
+ * Schema (no `$id`/`$schema`), so it is excluded from EXPECTED and from the
+ * donation drift gate. Validate it explicitly here so it cannot be deleted,
+ * corrupted, or rendered invalid JSON without failing CI — this is the coverage
+ * the drift gate's skip comment relies on.
+ */
+describe("delegation JSON-LD @context", () => {
+  const CONTEXT_FILE = "delegation/context/v1.0.0.json";
+  // Terms delegation credentials map through this context; a rename/drop here
+  // would silently break credential expansion, so pin the core set.
+  const REQUIRED_TERMS = [
+    "DelegationCredential",
+    "issuerDid",
+    "subjectDid",
+    "userDid",
+    "scopes",
+    "audience",
+    "notBefore",
+    "notAfter",
+  ];
+
+  it("exists and parses as valid JSON", () => {
+    expect(() => loadSchema(CONTEXT_FILE)).not.toThrow();
+  });
+
+  it("declares a JSON-LD 1.1 context with the kya-os delegation vocab", () => {
+    const doc = loadSchema(CONTEXT_FILE) as {
+      "@context"?: Record<string, unknown>;
+    };
+    const ctx = doc["@context"];
+    expect(ctx, "@context object is required").toBeTypeOf("object");
+    expect(ctx?.["@version"]).toBe(1.1);
+    expect(ctx?.["@vocab"]).toBe("https://schema.kya-os.org/ns/delegation#");
+  });
+
+  it("defines the core delegation terms", () => {
+    const ctx = (
+      loadSchema(CONTEXT_FILE) as { "@context": Record<string, unknown> }
+    )["@context"];
+    for (const term of REQUIRED_TERMS) {
+      expect(ctx, `context is missing term '${term}'`).toHaveProperty(term);
+    }
+  });
+
+  it("carries no retired protocol naming", () => {
+    const raw = readFileSync(join(schemasDir, CONTEXT_FILE), "utf8");
+    expect(raw).not.toMatch(/mcp[-_ ]?i\b/i);
   });
 });

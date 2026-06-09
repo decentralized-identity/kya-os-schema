@@ -39,8 +39,9 @@ const publishedFiles = jsonFiles(publishedDir);
 const diffs = [];
 
 // Index published schemas by $id. Files with no $id are NOT schemas under the
-// donation contract (e.g. the JSON-LD `@context` document) — skip them; their
-// correctness is covered by the schema test suite, not the drift gate.
+// donation contract (e.g. the JSON-LD `@context` document) — skip them. Such
+// files are covered instead by the "delegation JSON-LD @context" suite in
+// test/published-schemas.test.ts, so skipping here leaves them validated.
 const publishedById = new Map();
 for (const file of publishedFiles) {
   const id = schemaId(file);
