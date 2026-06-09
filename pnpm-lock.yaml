@@ -10,6 +10,9 @@ importers:
 
   packages/protocol-core:
     devDependencies:
+      '@kya-os/mcp':
+        specifier: 1.4.0
+        version: 1.4.0
       ajv:
         specifier: ^8.17.1
         version: 8.20.0
@@ -180,6 +183,14 @@ packages:
 
   '@jridgewell/sourcemap-codec@1.5.5':
     resolution: {integrity: sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og==}
+
+  '@kya-os/mcp@1.4.0':
+    resolution: {integrity: sha512-jnRrNVVTzJTx+kSC8iYGJAn+YZeL6RDanpcCg40mMFz6hDs8ZojtXfCMj7c1VwMCFaXVdrYP4NK4OALOuyt1Xw==}
+    peerDependencies:
+      '@modelcontextprotocol/sdk': '>=1.0.0'
+    peerDependenciesMeta:
+      '@modelcontextprotocol/sdk':
+        optional: true
 
   '@rollup/rollup-android-arm-eabi@4.61.0':
     resolution: {integrity: sha512-dnxczajOqt0gesZlN5pGQ1s1imQVrsmCw5G2Ci4oM+0WvNz3pyRnlWrT7McoZIb8VlFwCawdmbWRmxRn7HI+VQ==}
@@ -416,6 +427,12 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
 
+  jose@5.10.0:
+    resolution: {integrity: sha512-s+3Al/p9g32Iq+oqXxkW//7jk2Vig6FF1CFqzVXoTUXt2qz89YWbL+OwS17NFYEvxC35n0FKeGO2LGYSxeM2Gg==}
+
+  json-canonicalize@2.0.0:
+    resolution: {integrity: sha512-yyrnK/mEm6Na3ChbJUWueXdapueW0p380RUyTW87XGb1ww8l8hU0pRrGC3vSWHe9CxrbPHX2fGUOZpNiHR0IIg==}
+
   json-schema-traverse@1.0.0:
     resolution: {integrity: sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug==}
 
@@ -573,6 +590,9 @@ packages:
     engines: {node: '>=8'}
     hasBin: true
 
+  zod@4.4.3:
+    resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
+
 snapshots:
 
   '@esbuild/aix-ppc64@0.25.12':
@@ -654,6 +674,12 @@ snapshots:
     optional: true
 
   '@jridgewell/sourcemap-codec@1.5.5': {}
+
+  '@kya-os/mcp@1.4.0':
+    dependencies:
+      jose: 5.10.0
+      json-canonicalize: 2.0.0
+      zod: 4.4.3
 
   '@rollup/rollup-android-arm-eabi@4.61.0':
     optional: true
@@ -855,6 +881,10 @@ snapshots:
   fsevents@2.3.3:
     optional: true
 
+  jose@5.10.0: {}
+
+  json-canonicalize@2.0.0: {}
+
   json-schema-traverse@1.0.0: {}
 
   loupe@3.2.1: {}
@@ -1009,3 +1039,5 @@ snapshots:
     dependencies:
       siginfo: 2.0.0
       stackback: 0.0.2
+
+  zod@4.4.3: {}
