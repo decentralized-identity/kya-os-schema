@@ -149,7 +149,7 @@ function renderIndexHtml(schemas) {
             <a class="card-link" href="${esc(s.canonical)}" aria-label="Open the ${esc(s.title ?? "")} schema"></a>
             <div class="card-head"><h3>${esc(s.title ?? s.$id)}</h3><span class="go" aria-hidden="true">&rarr;</span></div>
             ${s.description ? `<p class="desc">${esc(firstSentence(s.description))}</p>` : ""}
-            <code class="id" title="Canonical $id — click to select, then copy">${esc(s.$id)}</code>
+            <button class="id" type="button" data-copy="${esc(s.$id)}" title="Copy the canonical $id"><span class="id-url">${esc(s.$id)}</span><span class="id-copy" aria-hidden="true">copy</span></button>
             <a class="raw" href="${esc(s.path)}">raw .json</a>
           </div>`,
         )
@@ -254,8 +254,13 @@ ${cards}
   .card .go{font-family:"JetBrains Mono",monospace;font-size:17px;color:var(--muted);transition:transform .2s ease,color .2s ease}
   .card:hover .go{color:var(--accent);transform:translateX(4px)}
   .card .desc{font-size:15px;line-height:1.6;color:var(--fg);margin-bottom:18px}
-  .card .id{position:relative;z-index:2;display:block;font-size:12px;color:var(--muted);word-break:break-all;line-height:1.55;margin-bottom:16px;cursor:text;user-select:all}
-  .card .id:hover{color:var(--fg)}
+  /* the canonical $id as a copy button: click copies it, with a visible label */
+  .card .id{position:relative;z-index:2;display:flex;align-items:center;gap:12px;width:100%;text-align:left;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);background:rgba(255,255,255,.03);border:1px solid var(--grid);padding:9px 11px;margin-bottom:16px;cursor:pointer;transition:border-color .2s ease,color .2s ease}
+  .card .id:hover{border-color:var(--muted);color:var(--fg)}
+  .card .id .id-url{flex:1;word-break:break-all;line-height:1.5}
+  .card .id .id-copy{flex-shrink:0;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .card .id:hover .id-copy{color:var(--accent)}
+  .card .id.copied,.card .id.copied .id-copy{border-color:var(--accent);color:var(--accent)}
   .card .raw{position:relative;z-index:2;font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--muted)}
   .card .raw:hover{color:var(--accent)}
 
@@ -310,6 +315,16 @@ ${faqHtml}
     <a href="${SPEC_URL}">Specification</a>
     <a href="${REPO_URL}">Donated core</a>
   </div></footer>
+  <script>
+    for (const b of document.querySelectorAll(".id[data-copy]")) {
+      b.addEventListener("click", function () {
+        if (navigator.clipboard) navigator.clipboard.writeText(b.dataset.copy);
+        var l = b.querySelector(".id-copy"), t = l.textContent;
+        l.textContent = "copied"; b.classList.add("copied");
+        setTimeout(function () { l.textContent = t; b.classList.remove("copied"); }, 1400);
+      });
+    }
+  </script>
 </body>
 </html>
 `;
