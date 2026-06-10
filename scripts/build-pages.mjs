@@ -127,6 +127,11 @@ function byCategory(schemas) {
 
 // ── landing page ────────────────────────────────────────────────────────────
 
+/** First sentence of a description, normalised to a single trailing period. */
+function firstSentence(desc) {
+  return desc.split(". ")[0].replace(/[.\s]+$/, "") + ".";
+}
+
 function renderIndexHtml(schemas) {
   const grouped = byCategory(schemas);
 
@@ -135,7 +140,7 @@ function renderIndexHtml(schemas) {
       const body = items
         .map(
           (s) => `          <tr>
-            <td class="nm"><strong>${esc(s.title ?? s.$id)}</strong>${s.description ? `<span class="ds">${esc(s.description.split(". ")[0])}.</span>` : ""}</td>
+            <td class="nm"><strong>${esc(s.title ?? s.$id)}</strong>${s.description ? `<span class="ds">${esc(firstSentence(s.description))}</span>` : ""}</td>
             <td><code class="id">${esc(s.$id)}</code></td>
             <td class="lk"><a href="${esc(s.canonical)}">schema</a> <a href="${esc(s.path)}" class="muted">.json</a></td>
           </tr>`,
