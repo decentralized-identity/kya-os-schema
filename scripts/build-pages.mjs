@@ -346,12 +346,47 @@ ${faqHtml}
     <a href="${REPO_URL}">Donated core</a>
   </div></footer>
   <script>
+    // Copy the $id, but only ever claim success when the bytes actually land.
+    // Prefer the async Clipboard API; fall back to execCommand; if both fail
+    // (no secure context, denied permission), select the text so the keyboard
+    // shortcut works and say "selected" rather than lying with "copied".
+    function legacyCopy(text) {
+      try {
+        var ta = document.createElement("textarea");
+        ta.value = text; ta.setAttribute("readonly", "");
+        ta.style.position = "fixed"; ta.style.top = "-9999px";
+        document.body.appendChild(ta); ta.select();
+        var ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        return ok;
+      } catch (e) { return false; }
+    }
     for (const b of document.querySelectorAll(".id[data-copy]")) {
-      b.addEventListener("click", function () {
-        if (navigator.clipboard) navigator.clipboard.writeText(b.dataset.copy);
-        var l = b.querySelector(".id-copy"), t = l.textContent;
-        l.textContent = "copied"; b.classList.add("copied");
-        setTimeout(function () { l.textContent = t; b.classList.remove("copied"); }, 1400);
+      const label = b.querySelector(".id-copy");
+      const orig = label.textContent;
+      let timer;
+      const flash = (msg) => {
+        label.textContent = msg; b.classList.add("copied");
+        clearTimeout(timer);
+        timer = setTimeout(() => { label.textContent = orig; b.classList.remove("copied"); }, 1400);
+      };
+      b.addEventListener("click", () => {
+        const text = b.dataset.copy;
+        const done = () => flash("copied");
+        const manual = () => {
+          if (legacyCopy(text)) return done();
+          const url = b.querySelector(".id-url");
+          if (url) {
+            const r = document.createRange(); r.selectNodeContents(url);
+            const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+          }
+          flash("selected");
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done, manual);
+        } else {
+          manual();
+        }
       });
     }
   </script>
