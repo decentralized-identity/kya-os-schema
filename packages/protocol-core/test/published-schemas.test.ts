@@ -17,27 +17,27 @@ const schemasDir = join(here, "..", "..", "..", "schemas", "v1", "protocol");
 const EXPECTED = [
   {
     file: "delegation/credential/v1.0.0.json",
-    id: "https://schema.kya-os.ai/v1/protocol/delegation/credential/v1.0.0",
+    id: "https://schema.kya-os.org/v1/protocol/delegation/credential/v1.0.0",
     title: "KYA-OS Delegation Credential",
   },
   {
     file: "proof/detached/v1.0.0.json",
-    id: "https://schema.kya-os.ai/v1/protocol/proof/detached/v1.0.0",
+    id: "https://schema.kya-os.org/v1/protocol/proof/detached/v1.0.0",
     title: "KYA-OS Detached Proof",
   },
   {
     file: "handshake/request/v1.0.0.json",
-    id: "https://schema.kya-os.ai/v1/protocol/handshake/request/v1.0.0",
+    id: "https://schema.kya-os.org/v1/protocol/handshake/request/v1.0.0",
     title: "KYA-OS Handshake Request",
   },
   {
     file: "handshake/response/v1.0.0.json",
-    id: "https://schema.kya-os.ai/v1/protocol/handshake/response/v1.0.0",
+    id: "https://schema.kya-os.org/v1/protocol/handshake/response/v1.0.0",
     title: "KYA-OS Handshake Response",
   },
   {
     file: "well-known/v1.0.0.json",
-    id: "https://schema.kya-os.ai/v1/protocol/well-known/v1.0.0",
+    id: "https://schema.kya-os.org/v1/protocol/well-known/v1.0.0",
     title: "KYA-OS Discovery Document",
   },
   {

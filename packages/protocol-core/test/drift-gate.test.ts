@@ -35,7 +35,7 @@ describe("donation-sync drift gate", () => {
     // but change the bytes — this exercises real content drift, not a parse miss.
     const tampered = JSON.stringify({
       $schema: "https://json-schema.org/draft/2020-12/schema",
-      $id: "https://schema.kya-os.ai/v1/protocol/well-known/v1.0.0",
+      $id: "https://schema.kya-os.org/v1/protocol/well-known/v1.0.0",
       title: "tampered",
     });
     const mutated = donationSyncDiffs(repoRoot, {
@@ -69,7 +69,7 @@ describe("donation-sync drift gate", () => {
     // published tree never gains).
     const reIded = JSON.stringify({
       $schema: "https://json-schema.org/draft/2020-12/schema",
-      $id: "https://schema.kya-os.ai/v1/protocol/well-known/v9.9.9",
+      $id: "https://schema.kya-os.org/v1/protocol/well-known/v9.9.9",
     });
     const mutated = donationSyncDiffs(repoRoot, {
       "well-known/v1.0.0.json": reIded,
