@@ -258,7 +258,7 @@ ${cards}
   .card .id{position:relative;z-index:2;display:flex;align-items:center;gap:12px;width:100%;text-align:left;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);background:rgba(255,255,255,.03);border:1px solid var(--grid);padding:9px 11px;margin-bottom:16px;cursor:pointer;transition:border-color .2s ease,color .2s ease}
   .card .id:hover{border-color:var(--muted);color:var(--fg)}
   .card .id .id-url{flex:1;word-break:break-all;line-height:1.5}
-  .card .id .id-copy{flex-shrink:0;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .card .id .id-copy{flex-shrink:0;min-width:52px;text-align:right;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
   .card .id:hover .id-copy{color:var(--accent)}
   .card .id.copied,.card .id.copied .id-copy{border-color:var(--accent);color:var(--accent)}
   .card .raw{position:relative;z-index:2;font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--muted)}
