@@ -76,14 +76,14 @@ index.sort((a, b) => a.$id.localeCompare(b.$id));
 
 const TITLE = "KYA-OS Protocol Schemas";
 const DESCRIPTION =
-  "Canonical registry of versioned JSON Schemas (draft 2020-12) for the KYA-OS protocol — handshake, detached proof, delegation, and discovery — served at stable $id URLs with open CORS.";
+  "The canonical registry of JSON Schemas for the KYA-OS protocol. Every schema is versioned and served at a stable $id URL with open CORS.";
 const LEAD =
-  "schema.kya-os.org is the canonical registry for the KYA-OS protocol's JSON Schemas. It serves versioned, immutable schema documents — for handshakes, detached proofs, delegation credentials, audit records, and discovery — each at a stable $id URL with open CORS. Reference these schemas to validate KYA-OS messages, or resolve $ref pointers from any JSON Schema validator.";
+  "The canonical registry for the KYA-OS protocol's JSON Schemas. Every schema is versioned and immutable, served at a stable $id URL with open CORS. Reference one to validate KYA-OS messages, or to resolve $ref pointers from any JSON Schema validator.";
 
 const FAQ = [
   {
     q: "What is KYA-OS?",
-    a: "KYA-OS is an open protocol for verifiable AI-agent identity, delegation, and proof. It defines how an agent proves who it is and what authority it holds — enforceable at the edge and compatible with the web. The protocol is donated to the Decentralized Identity Foundation (DIF).",
+    a: "KYA-OS is an open protocol for verifiable AI-agent identity, delegation, and proof. It defines how an agent proves who it is and what authority it holds, enforceable at the edge and compatible with the web. The protocol is donated to the Decentralized Identity Foundation (DIF).",
   },
   {
     q: "How do I reference a KYA-OS schema?",
@@ -146,10 +146,11 @@ function renderIndexHtml(schemas) {
       const cards = items
         .map(
           (s) => `          <div class="card">
-            <h3>${esc(s.title ?? s.$id)}</h3>
+            <a class="card-link" href="${esc(s.canonical)}" aria-label="Open the ${esc(s.title ?? "")} schema"></a>
+            <div class="card-head"><h3>${esc(s.title ?? s.$id)}</h3><span class="go" aria-hidden="true">&rarr;</span></div>
             ${s.description ? `<p class="desc">${esc(firstSentence(s.description))}</p>` : ""}
-            <code class="id">${esc(s.$id)}</code>
-            <div class="links"><a href="${esc(s.canonical)}">schema&nbsp;&rarr;</a><a href="${esc(s.path)}" class="json">.json</a></div>
+            <code class="id" title="Canonical $id — click to select, then copy">${esc(s.$id)}</code>
+            <a class="raw" href="${esc(s.path)}">raw .json</a>
           </div>`,
         )
         .join("\n");
@@ -203,7 +204,7 @@ ${cards}
 <meta name="twitter:image" content="${ORIGIN}/og.svg" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 <script type="application/ld+json">${JSON.stringify(jsonld)}</script>
 <style>
   :root{ --bg:#0a0a0a; --fg:#e0e0e0; --muted:#666; --faint:#888; --accent:#fff; --grid:#1a1a1a; }
@@ -230,7 +231,7 @@ ${cards}
 
   .hero{padding:80px 0 36px}
   .eyebrow{font-family:"JetBrains Mono",monospace;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:24px}
-  h1{font-family:"Space Grotesk",sans-serif;font-size:clamp(42px,7vw,64px);font-weight:600;letter-spacing:-.025em;line-height:1.04;color:var(--accent)}
+  h1{font-family:"Space Grotesk",sans-serif;font-size:clamp(42px,7vw,64px);font-weight:300;letter-spacing:-.02em;line-height:1.05;color:var(--accent)}
   .lede{max-width:660px;font-size:18px;line-height:1.85;color:var(--fg);margin-top:24px}
   .lede code{font-size:16px;color:var(--accent)}
   .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:32px}
@@ -243,15 +244,20 @@ ${cards}
   .section-label:first-child{margin-top:0}
   .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(390px,1fr));gap:16px}
   @media(max-width:520px){.cards{grid-template-columns:1fr}}
-  .card{padding:26px;background:rgba(255,255,255,.02);border:1px solid var(--grid);transition:background .2s ease,border-color .2s ease}
+  /* clickable card: a stretched link covers it (→ the schema); the $id and the
+     raw-.json link sit above the overlay so they stay independently usable. */
+  .card{position:relative;padding:26px;background:rgba(255,255,255,.02);border:1px solid var(--grid);transition:background .2s ease,border-color .2s ease}
   .card:hover{background:rgba(255,255,255,.04);border-color:var(--muted)}
-  .card h3{font-size:18px;font-weight:600;color:var(--accent);margin-bottom:10px;letter-spacing:-.01em}
-  .card .desc{font-size:15px;line-height:1.6;color:var(--fg);margin-bottom:16px}
-  .card .id{display:block;font-size:12px;color:var(--muted);word-break:break-all;line-height:1.5;margin-bottom:16px}
-  .card .links{display:flex;gap:18px;font-family:"JetBrains Mono",monospace;font-size:13px}
-  .card .links a{color:var(--accent)}
-  .card .links a.json{color:var(--muted)}
-  .card .links a.json:hover{color:var(--accent)}
+  .card-link{position:absolute;inset:0;z-index:1}
+  .card-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}
+  .card h3{font-size:18px;font-weight:600;color:var(--accent);letter-spacing:-.01em}
+  .card .go{font-family:"JetBrains Mono",monospace;font-size:17px;color:var(--muted);transition:transform .2s ease,color .2s ease}
+  .card:hover .go{color:var(--accent);transform:translateX(4px)}
+  .card .desc{font-size:15px;line-height:1.6;color:var(--fg);margin-bottom:18px}
+  .card .id{position:relative;z-index:2;display:block;font-size:12px;color:var(--muted);word-break:break-all;line-height:1.55;margin-bottom:16px;cursor:text;user-select:all}
+  .card .id:hover{color:var(--fg)}
+  .card .raw{position:relative;z-index:2;font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--muted)}
+  .card .raw:hover{color:var(--accent)}
 
   .faq{margin-top:64px;padding-top:8px}
   .qa{padding:24px 0;border-top:1px solid var(--grid)}
@@ -283,7 +289,6 @@ ${cards}
       <p class="lede">${esc(LEAD)}</p>
       <div class="chips">
         <span class="chip"><b>${schemas.length}</b> schemas</span>
-        <span class="chip">JSON Schema <b>draft 2020-12</b></span>
         <span class="chip">protocol <b>v1</b></span>
         <span class="chip"><a href="/schema-index.json">schema-index.json</a></span>
       </div>
@@ -358,7 +363,7 @@ function renderOgImage(count) {
   <g transform="translate(80,150) scale(0.62)" fill="#ffffff"><path d="${LOGO_PATH}"/></g>
   <text x="230" y="220" font-family="'Space Grotesk',system-ui,sans-serif" font-size="22" letter-spacing="6" fill="#888">KYA-OS / SCHEMA</text>
   <text x="226" y="320" font-family="'Space Grotesk',system-ui,sans-serif" font-size="88" font-weight="600" fill="#ffffff">Protocol Schemas</text>
-  <text x="230" y="372" font-family="'JetBrains Mono',monospace" font-size="22" fill="#888">JSON Schema draft 2020-12 · ${count} schemas · v1</text>
+  <text x="230" y="372" font-family="'JetBrains Mono',monospace" font-size="22" fill="#888">${count} schemas · protocol v1</text>
   <text x="230" y="470" font-family="'JetBrains Mono',monospace" font-size="22" fill="#e0e0e0">schema.kya-os.org</text>
 </svg>
 `;
