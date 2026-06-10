@@ -91,7 +91,7 @@ const FAQ = [
   },
   {
     q: "What schema format is used?",
-    a: "Every document is a JSON Schema draft 2020-12. Schemas are versioned (v1.0.0) and immutable at their $id: a published schema never changes in place, so consumers can pin a version with confidence. New revisions are published at a new version path rather than overwriting an existing one.",
+    a: "Schemas are versioned (v1.0.0) JSON Schema documents, immutable at their $id: a published schema never changes in place, so consumers can pin a version with confidence. New revisions are published at a new version path rather than overwriting an existing one.",
   },
   {
     q: "Where is the KYA-OS specification?",
@@ -147,6 +147,17 @@ function faqAnswerText(a) {
   return a.replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1");
 }
 
+/** Prevent a typographic orphan (a lone word on a paragraph's last line) by
+ *  gluing the final word pair with a non-breaking space. Runs on already-
+ *  rendered HTML: if the block ends in an anchor, the word before it is glued
+ *  to the whole link; otherwise the last two plain words are joined. */
+function noOrphans(html) {
+  if (!html) return html;
+  const withLink = html.replace(/ ([^\s<>]*<a\b[^>]*>[^<]*<\/a>[)\].,;:!?]*)$/, "&nbsp;$1");
+  if (withLink !== html) return withLink;
+  return html.replace(/ ([^\s<>]+)$/, "&nbsp;$1");
+}
+
 // ── landing page ────────────────────────────────────────────────────────────
 
 function renderIndexHtml(schemas) {
@@ -157,7 +168,7 @@ function renderIndexHtml(schemas) {
           (s) => `          <div class="card">
             <a class="card-link" href="${esc(s.canonical)}" aria-label="Open the ${esc(s.title ?? "")} schema"></a>
             <div class="card-head"><h3>${esc(s.title ?? s.$id)}</h3><span class="go" aria-hidden="true">&rarr;</span></div>
-            ${s.description ? `<p class="desc">${esc(firstSentence(s.description))}</p>` : ""}
+            ${s.description ? `<p class="desc">${noOrphans(esc(firstSentence(s.description)))}</p>` : ""}
             <button class="id" type="button" data-copy="${esc(s.$id)}" title="Copy the canonical $id"><span class="id-url">${esc(s.$id)}</span><span class="id-copy" aria-hidden="true">copy</span></button>
             <a class="raw" href="${esc(s.path)}">raw .json</a>
           </div>`,
@@ -170,7 +181,7 @@ ${cards}
     })
     .join("\n");
 
-  const faqHtml = FAQ.map((f) => `        <div class="qa"><h3>${esc(f.q)}</h3><p>${faqAnswerHtml(f.a)}</p></div>`).join("\n");
+  const faqHtml = FAQ.map((f) => `        <div class="qa"><h3>${esc(f.q)}</h3><p>${noOrphans(faqAnswerHtml(f.a))}</p></div>`).join("\n");
 
   const jsonld = {
     "@context": "https://schema.org",
@@ -302,7 +313,7 @@ ${cards}
     <section class="hero">
       <div class="eyebrow">Decentralized Identity Foundation</div>
       <h1>Protocol Schemas</h1>
-      <p class="lede">${esc(LEAD)}</p>
+      <p class="lede">${noOrphans(esc(LEAD))}</p>
       <div class="chips">
         <span class="chip"><b>${schemas.length}</b> schemas</span>
         <span class="chip">protocol <b>v1</b></span>
