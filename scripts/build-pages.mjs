@@ -95,7 +95,7 @@ const FAQ = [
   },
   {
     q: "Where is the KYA-OS specification?",
-    a: "The full KYA-OS specification, including the Model Context Protocol (MCP) binding, lives at kya-os.org/mcp. The reference implementation and these schemas are maintained in the donated core repository at github.com/decentralized-identity/kya-os-mcp.",
+    a: "The full spec and its MCP binding live at [kya-os.org/mcp](https://kya-os.org/mcp). The reference implementation and these schemas are in the donated core repo, [decentralized-identity/kya-os-mcp](https://github.com/decentralized-identity/kya-os-mcp).",
   },
 ];
 
@@ -138,6 +138,15 @@ function firstSentence(desc) {
   return desc.split(". ")[0].replace(/[.\s]+$/, "") + ".";
 }
 
+/** FAQ answers carry markdown `[label](url)` links. Render them for HTML
+ *  (escaped text + anchors) and as plain text (label only) for JSON-LD. */
+function faqAnswerHtml(a) {
+  return esc(a).replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+}
+function faqAnswerText(a) {
+  return a.replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1");
+}
+
 // ── landing page ────────────────────────────────────────────────────────────
 
 function renderIndexHtml(schemas) {
@@ -161,7 +170,7 @@ ${cards}
     })
     .join("\n");
 
-  const faqHtml = FAQ.map((f) => `        <div class="qa"><h3>${esc(f.q)}</h3><p>${esc(f.a)}</p></div>`).join("\n");
+  const faqHtml = FAQ.map((f) => `        <div class="qa"><h3>${esc(f.q)}</h3><p>${faqAnswerHtml(f.a)}</p></div>`).join("\n");
 
   const jsonld = {
     "@context": "https://schema.org",
@@ -178,7 +187,7 @@ ${cards}
         isPartOf: { "@id": `${ORIGIN}/#website` },
         dataset: schemas.map((s) => ({ "@type": "Dataset", name: s.title ?? s.$id, description: s.description || `${s.title} schema (JSON Schema draft 2020-12).`, identifier: s.$id, url: `${ORIGIN}${s.canonical}`, encodingFormat: "application/schema+json", version: s.version || undefined, isPartOf: { "@id": `${ORIGIN}/#catalog` } })),
       },
-      { "@type": "FAQPage", "@id": `${ORIGIN}/#faq`, mainEntity: FAQ.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) },
+      { "@type": "FAQPage", "@id": `${ORIGIN}/#faq`, mainEntity: FAQ.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: faqAnswerText(f.a) } })) },
     ],
   };
 
@@ -268,6 +277,8 @@ ${cards}
   .qa{padding:24px 0;border-top:1px solid var(--grid)}
   .qa h3{font-size:18px;font-weight:600;color:var(--accent);margin-bottom:10px}
   .qa p{font-size:15.5px;line-height:1.7;color:var(--fg);max-width:72ch}
+  .qa p a{color:var(--accent);text-decoration:underline;text-decoration-color:var(--muted);text-underline-offset:3px}
+  .qa p a:hover{text-decoration-color:var(--accent)}
 
   footer{border-top:1px solid var(--grid);margin-top:72px;padding:28px 0 64px;color:var(--muted);font-size:13px}
   footer .wrap{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center}
