@@ -9,7 +9,11 @@ on:
     branches: [main]
     paths:
       - "schemas/**"
+      - "packages/protocol-core/**"
       - "scripts/build-pages.mjs"
+      - "scripts/smoke-pages.mjs"
+      - "package.json"
+      - "pnpm-lock.yaml"
       - ".github/workflows/deploy-schemas.yml"
   workflow_dispatch:
 
@@ -39,12 +43,16 @@ jobs:
       # workflow_dispatch); running the gates here makes the deploy itself
       # fail-closed — dist/ is never published unless the tests and the drift
       # gate pass on the exact commit being deployed.
+      - name: Build package
+        run: pnpm run build
       - name: Test
         run: pnpm test
       - name: Schema drift gate
         run: pnpm run drift
       - name: Build Pages artifact
-        run: node scripts/build-pages.mjs
+        run: pnpm run build:pages
+      - name: Smoke-test published routes
+        run: pnpm run smoke:pages
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v4
         with:

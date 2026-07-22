@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.kya-os.org/v1/protocol/audit/ingest-response/v1.0.0",
+  "title": "KYA-OS Audit Ingest Response v1",
+  "description": "A recorder's committed signed entry and receipt, with the verification outcomes established before acknowledgement.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "entry", "receipt", "verification"],
+  "properties": {
+    "schema": {
+      "const": "https://schema.kya-os.org/v1/protocol/audit/ingest-response/v1.0.0"
+    },
+    "entry": {
+      "$ref": "https://schema.kya-os.org/v1/protocol/audit/signed-entry/v1.0.0"
+    },
+    "receipt": {
+      "$ref": "https://schema.kya-os.org/v1/protocol/audit/signed-receipt/v1.0.0"
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "receiptSignature",
+        "tenantBinding",
+        "sourceBinding",
+        "ledgerChain"
+      ],
+      "properties": {
+        "schema": { "const": "valid" },
+        "receiptSignature": { "const": "valid" },
+        "tenantBinding": { "const": "valid" },
+        "sourceBinding": { "const": "valid" },
+        "ledgerChain": { "const": "committed" }
+      }
+    }
+  }
+}

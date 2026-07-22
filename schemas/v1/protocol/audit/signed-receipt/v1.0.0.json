@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.kya-os.org/v1/protocol/audit/signed-receipt/v1.0.0",
+  "title": "KYA-OS Signed Audit Recorder Receipt v1",
+  "description": "Recorder receipt core and its detached compact JWS, matching the @kya-os/mcp v1.11.0 runtime contract.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["core", "jws"],
+  "properties": {
+    "core": {
+      "$ref": "https://schema.kya-os.org/v1/protocol/audit/receipt/v1.0.0"
+    },
+    "jws": { "type": "string", "minLength": 1, "maxLength": 4096 }
+  }
+}

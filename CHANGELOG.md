@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Complete audit schema publication from `@kya-os/mcp` v1.11.0, including
+  producer events, recorder entry/receipt cores, checkpoints, observations,
+  supporting anchors, Merkle proofs, verification policy/report, and signed
+  replay-bundle inventory.
+- Registry-owned external envelope schemas for signed receipts, entries,
+  checkpoints, manifests, replay components, ledger-bound proofs, and the full
+  replay bundle, with runtime acceptance parity tests.
+- Cloudflare Pages route smoke checks and RFC 9457-style JSON 404 responses;
+  CI and deployment now exercise the same build and route contract.
+- Enriched `schema-index.json` discovery metadata and a public retrieval alias
+  for the relative audit-event reference frozen into the v1.11.0 entry schema.
+
+### Changed
+
+- `well-known/v1.0.0` now includes the audit capability object shipped by
+  `@kya-os/mcp` v1.11.0. This is a digest-pinned one-time synchronization of an
+  existing `$id`; future semantic changes remain required to use a new version.
+
 - Repository scaffold and DIF donation governance (LICENSE, DCO, GOVERNANCE,
   CONTRIBUTING, SECURITY, CONFORMANCE, CODE_OF_CONDUCT).
 - Commit hooks enforcing DCO sign-off and rejecting tooling attribution, with a

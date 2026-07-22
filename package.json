@@ -15,7 +15,8 @@
     "gen": "pnpm --filter @kya-os/schema run gen",
     "drift": "pnpm --filter @kya-os/schema run drift",
     "validate-registry": "node registry/cli.js validate",
-    "build:pages": "node scripts/build-pages.mjs"
+    "build:pages": "node scripts/build-pages.mjs",
+    "smoke:pages": "node scripts/smoke-pages.mjs"
   },
   "keywords": [
     "kya-os",
