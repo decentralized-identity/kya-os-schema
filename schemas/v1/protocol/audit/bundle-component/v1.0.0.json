@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.kya-os.org/v1/protocol/audit/bundle-component/v1.0.0",
+  "title": "KYA-OS Audit Replay Bundle Component v1",
+  "description": "One included or explicitly omitted replay-bundle inventory component, matching the @kya-os/mcp v1.11.0 runtime contract.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["path", "mediaType", "disposition"],
+  "properties": {
+    "path": { "type": "string", "minLength": 1, "maxLength": 1024 },
+    "mediaType": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "disposition": {
+      "enum": [
+        "included",
+        "redacted",
+        "disposed",
+        "unavailable",
+        "policy_excluded"
+      ]
+    },
+    "digest": { "$ref": "#/$defs/digest" },
+    "size": { "$ref": "#/$defs/decimal" },
+    "reasonCode": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "content": true
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "disposition": { "const": "included" } },
+        "required": ["disposition"]
+      },
+      "then": {
+        "required": ["digest", "size", "content"],
+        "not": { "required": ["reasonCode"] }
+      },
+      "else": {
+        "required": ["reasonCode"],
+        "allOf": [
+          { "not": { "required": ["digest"] } },
+          { "not": { "required": ["size"] } },
+          { "not": { "required": ["content"] } }
+        ]
+      }
+    }
+  ],
+  "$defs": {
+    "decimal": {
+      "type": "string",
+      "maxLength": 20,
+      "pattern": "^(0|[1-9][0-9]*)$"
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    }
+  }
+}

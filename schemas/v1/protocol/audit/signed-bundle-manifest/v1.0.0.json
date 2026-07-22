@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.kya-os.org/v1/protocol/audit/signed-bundle-manifest/v1.0.0",
+  "title": "KYA-OS Signed Audit Bundle Manifest v1",
+  "description": "Replay-bundle manifest core, its digest, and exporter compact JWS, matching the @kya-os/mcp v1.11.0 runtime contract.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["core", "manifestDigest", "jws"],
+  "properties": {
+    "core": {
+      "$ref": "https://schema.kya-os.org/v1/protocol/audit/bundle-manifest/v1.0.0"
+    },
+    "manifestDigest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "jws": { "type": "string", "minLength": 1, "maxLength": 4096 }
+  }
+}

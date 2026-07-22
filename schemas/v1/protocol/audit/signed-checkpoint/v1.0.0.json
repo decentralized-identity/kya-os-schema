@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.kya-os.org/v1/protocol/audit/signed-checkpoint/v1.0.0",
+  "title": "KYA-OS Signed Audit Checkpoint v1",
+  "description": "RFC 9162 checkpoint core, its digest, and detached compact JWS, matching the @kya-os/mcp v1.11.0 runtime contract.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["core", "checkpointDigest", "jws"],
+  "properties": {
+    "core": {
+      "$ref": "https://schema.kya-os.org/v1/protocol/audit/checkpoint/v1.0.0"
+    },
+    "checkpointDigest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "jws": { "type": "string", "minLength": 1, "maxLength": 4096 }
+  }
+}

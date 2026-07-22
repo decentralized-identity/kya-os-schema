@@ -72,6 +72,22 @@ for (const file of jsonFiles(join(distDir, "v1"))) {
 }
 index.sort((a, b) => a.$id.localeCompare(b.$id));
 
+// @kya-os/mcp v1.11.0's byte-frozen audit entry schema resolves its relative
+// event reference beneath the entry $id. Publish that retrieval alias without
+// changing the donated schema bytes or advertising the alias as another $id.
+const referenceAliases = [
+  {
+    from: "v1/protocol/audit/event/v1.0.0.json",
+    to: "v1/protocol/audit/entry/audit-event.schema.json",
+  },
+];
+for (const { from, to } of referenceAliases) {
+  const source = join(distDir, from);
+  const target = join(distDir, to);
+  mkdirSync(dirname(target), { recursive: true });
+  cpSync(source, target);
+}
+
 // ── shared content (defined before the emit block consumes it) ───────────────
 
 const TITLE = "KYA-OS Protocol Schemas";
@@ -463,9 +479,61 @@ function renderHeaders() {
   ].join("\n");
 }
 
+function renderWorker() {
+  return `const PROBLEM_TYPE = "${ORIGIN}/problems/schema-not-found";
+
+export default {
+  async fetch(request, env) {
+    const response = await env.ASSETS.fetch(request);
+    if (response.status !== 404) return response;
+
+    const url = new URL(request.url);
+    const problem = {
+      type: PROBLEM_TYPE,
+      title: "Schema not found",
+      status: 404,
+      detail: "No published KYA-OS schema or registry resource matches this path.",
+      instance: url.pathname,
+    };
+    const body = request.method === "HEAD" ? null : JSON.stringify(problem) + "\\n";
+    return new Response(body, {
+      status: 404,
+      headers: {
+        "Content-Type": "application/problem+json; charset=utf-8",
+        "Access-Control-Allow-Origin": "*",
+        "Cache-Control": "no-store",
+        "X-Content-Type-Options": "nosniff",
+      },
+    });
+  },
+};
+`;
+}
+
 // ── emit (runs last: every const + function above is now initialized) ────────
 
-writeFileSync(join(distDir, "schema-index.json"), JSON.stringify({ schemas: index.map((s) => ({ $id: s.$id, title: s.title, path: s.path })) }, null, 2) + "\n");
+writeFileSync(
+  join(distDir, "schema-index.json"),
+  JSON.stringify(
+    {
+      $schema: "https://json-schema.org/draft/2020-12/schema",
+      registry: ORIGIN,
+      protocolVersion: "v1",
+      schemas: index.map((s) => ({
+        $id: s.$id,
+        title: s.title,
+        description: s.description,
+        category: s.category,
+        version: s.version,
+        canonical: s.canonical,
+        path: s.path,
+        mediaType: "application/schema+json",
+      })),
+    },
+    null,
+    2,
+  ) + "\n",
+);
 writeFileSync(join(distDir, "index.html"), renderIndexHtml(index));
 writeFileSync(join(distDir, "index.md"), renderMarkdown(index));
 writeFileSync(join(distDir, "llms.txt"), renderLlms(index, false));
@@ -475,5 +543,6 @@ writeFileSync(join(distDir, "robots.txt"), renderRobots());
 writeFileSync(join(distDir, "og.svg"), renderOgImage(index.length));
 writeFileSync(join(distDir, "favicon.svg"), FAVICON_SVG);
 writeFileSync(join(distDir, "_headers"), renderHeaders());
+writeFileSync(join(distDir, "_worker.js"), renderWorker());
 
 console.log(`Built Pages artifact: ${index.length} schemas -> ${relative(repoRoot, distDir)}/ (kya-os.org brand + AEO)`);

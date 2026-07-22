@@ -19,10 +19,16 @@ jobs:
           node-version: 20
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Build package
+        run: pnpm run build
       - name: Test
         run: pnpm test
       - name: Schema drift gate
         run: pnpm run drift
+      - name: Build Pages artifact
+        run: pnpm run build:pages
+      - name: Smoke-test published routes
+        run: pnpm run smoke:pages
 
   hygiene:
     runs-on: ubuntu-latest

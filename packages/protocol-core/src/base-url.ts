@@ -7,7 +7,7 @@
  * per-document churn: override it by environment for a different host.
  */
 export const SCHEMA_BASE_URL: string =
-  process.env.KYA_OS_SCHEMA_BASE_URL ?? "https://schema.kya-os.ai";
+  process.env.KYA_OS_SCHEMA_BASE_URL ?? "https://schema.kya-os.org";
 
 /** Build the canonical `$id` for a protocol schema. */
 export function protocolSchemaId(

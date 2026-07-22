@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.kya-os.org/v1/protocol/audit/replay-bundle/v1.0.0",
+  "title": "KYA-OS Audit Replay Bundle v1",
+  "description": "Portable signed-inventory audit replay bundle, matching the @kya-os/mcp v1.11.0 runtime contract.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["manifest", "components"],
+  "properties": {
+    "manifest": {
+      "$ref": "https://schema.kya-os.org/v1/protocol/audit/signed-bundle-manifest/v1.0.0"
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "$ref": "https://schema.kya-os.org/v1/protocol/audit/bundle-component/v1.0.0"
+      }
+    }
+  }
+}
