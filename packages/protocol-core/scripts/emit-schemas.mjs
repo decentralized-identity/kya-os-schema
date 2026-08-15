@@ -11,7 +11,7 @@ import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const EXPECTED_DONATION_VERSION = "1.11.0";
+const EXPECTED_DONATION_VERSION = "1.14.0";
 const ORIGIN = "https://schema.kya-os.org";
 const PREFIX = "/v1/protocol/";
 const ONE_TIME_DONATION_MIGRATIONS = new Map([
@@ -20,6 +20,19 @@ const ONE_TIME_DONATION_MIGRATIONS = new Map([
     {
       from: "5801be64d9e4967c88f1c49c38b906cbecd858d59c3cc103e42443e7ea1d27dc",
       to: "a728e17e5ad24e754723d92d296962805eb3272b4fadc26442e96477358ad407",
+    },
+  ],
+  [
+    // 1.11.0 -> 1.14.0 pin bump: upstream applied the terminal proof-profile
+    // naming (kya-os-mcp v1.12.0) to the published card in place, widening
+    // `proofProfile` from `const "org.kya-os/proof@1"` to an enum that also
+    // accepts "org.kya-os/proof.v1" - the documented one-major compat window.
+    // Compatible widening only; no structural change, so no version bump was
+    // minted upstream. Same policy as the settings schema's in-place update.
+    "identity/card/v1.1.0.json",
+    {
+      from: "201783461c8a0ff11ae45272aaf1d8a3e244b1aaf5158073740c184aaa918a46",
+      to: "23392b30b578d3a17a12923dd5f9d252fc32b77df89d49a81c870c2ff95e0a06",
     },
   ],
 ]);
