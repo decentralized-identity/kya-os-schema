@@ -72,9 +72,10 @@ for (const file of jsonFiles(join(distDir, "v1"))) {
 }
 index.sort((a, b) => a.$id.localeCompare(b.$id));
 
-// @kya-os/mcp v1.11.0's byte-frozen audit entry schema resolves its relative
-// event reference beneath the entry $id. Publish that retrieval alias without
-// changing the donated schema bytes or advertising the alias as another $id.
+// @kya-os/mcp's byte-frozen audit entry schema (unchanged since v1.11.0)
+// resolves its relative event reference beneath the entry $id. Publish that
+// retrieval alias without changing the donated schema bytes or advertising
+// the alias as another $id.
 const referenceAliases = [
   {
     from: "v1/protocol/audit/event/v1.0.0.json",
@@ -479,15 +480,53 @@ function renderHeaders() {
   ].join("\n");
 }
 
-function renderWorker() {
+/**
+ * Every pathname the deploy actually serves, derived by walking dist/ after all
+ * content is written. The worker gates on this manifest instead of trusting
+ * `env.ASSETS.fetch` to 404: the production Pages ASSETS binding serves the
+ * SPA-style index.html fallback with HTTP 200 for unmatched routes, so a
+ * status check alone can never fire — unpublished schema versions would
+ * resolve as 200 HTML stamped `application/schema+json` by the /v1/* header
+ * rule. Unknown paths must fail closed, like the rest of the pipeline.
+ */
+function servedPaths() {
+  const out = new Set(["/"]);
+  const walk = (dir) => {
+    for (const entry of readdirSync(dir)) {
+      const full = join(dir, entry);
+      if (statSync(full).isDirectory()) {
+        walk(full);
+        continue;
+      }
+      const rel = "/" + relative(distDir, full).split(/[/\\]/).join("/");
+      if (rel === "/_headers" || rel === "/_worker.js" || rel === "/_redirects") continue;
+      out.add(rel);
+      if (rel.endsWith("/index.html")) out.add(rel.slice(0, -"/index.html".length) || "/");
+      else if (rel.endsWith(".html")) out.add(rel.slice(0, -".html".length));
+    }
+  };
+  walk(distDir);
+  return [...out].sort();
+}
+
+function renderWorker(paths) {
   return `const PROBLEM_TYPE = "${ORIGIN}/problems/schema-not-found";
+const KNOWN_PATHS = new Set(${JSON.stringify(paths)});
 
 export default {
   async fetch(request, env) {
-    const response = await env.ASSETS.fetch(request);
-    if (response.status !== 404) return response;
-
     const url = new URL(request.url);
+    // Normalize only a trailing slash; no decoding — a path that does not
+    // byte-match a published asset fails closed to the problem response.
+    const candidate =
+      url.pathname.length > 1 && url.pathname.endsWith("/")
+        ? url.pathname.slice(0, -1)
+        : url.pathname;
+    if (KNOWN_PATHS.has(candidate)) {
+      const response = await env.ASSETS.fetch(request);
+      if (response.status !== 404) return response;
+    }
+
     const problem = {
       type: PROBLEM_TYPE,
       title: "Schema not found",
@@ -543,6 +582,8 @@ writeFileSync(join(distDir, "robots.txt"), renderRobots());
 writeFileSync(join(distDir, "og.svg"), renderOgImage(index.length));
 writeFileSync(join(distDir, "favicon.svg"), FAVICON_SVG);
 writeFileSync(join(distDir, "_headers"), renderHeaders());
-writeFileSync(join(distDir, "_worker.js"), renderWorker());
+// Last on purpose: the worker's known-path manifest is derived from the final
+// contents of dist/, so every emit above must have happened already.
+writeFileSync(join(distDir, "_worker.js"), renderWorker(servedPaths()));
 
 console.log(`Built Pages artifact: ${index.length} schemas -> ${relative(repoRoot, distDir)}/ (kya-os.org brand + AEO)`);

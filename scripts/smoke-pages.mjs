@@ -119,6 +119,27 @@ const unknownHead = await worker.fetch(
 assert(unknownHead.status === 404, "unknown HEAD route did not preserve 404");
 assert((await unknownHead.text()) === "", "unknown HEAD route returned a body");
 
+// The landing page and trailing-slash normalization must keep working through
+// the known-path gate.
+const root = await worker.fetch(new Request(`${ORIGIN}/`), env);
+assert(root.status === 200, `root route returned ${root.status}`);
+assert(root.headers.get("content-type")?.startsWith("text/html"), "root route did not return HTML");
+
+const trailing = await worker.fetch(new Request(`${ORIGIN}${knownPath}/`), env);
+assert(
+  trailing.status === 200 || trailing.status === 404,
+  `trailing-slash route returned unexpected ${trailing.status}`,
+);
+
+// A directory path with no document must fail closed, not serve the fallback.
+const dirPath = "/v1/protocol/audit";
+const dir = await worker.fetch(new Request(`${ORIGIN}${dirPath}`), env);
+assert(dir.status === 404, `bare directory route returned ${dir.status} instead of 404`);
+assert(
+  dir.headers.get("content-type")?.startsWith("application/problem+json"),
+  "bare directory route did not return problem JSON",
+);
+
 console.log(
   `Pages smoke passed: ${index.schemas.length} schemas, known-route JSON, unknown-route problem JSON.`,
 );
@@ -127,11 +148,20 @@ async function serveAsset(request) {
   const pathname = new URL(request.url).pathname;
   const candidate = join(distDir, pathname === "/" ? "index.html" : pathname.slice(1));
   if (!existsSync(candidate) || statSync(candidate).isDirectory()) {
-    return new Response("not found", { status: 404, headers: { "Content-Type": "text/html" } });
+    // Match PRODUCTION behavior: the real Pages ASSETS binding never returns
+    // 404 here — it serves the SPA-style index.html fallback with HTTP 200.
+    // The worker must therefore fail closed on its own manifest; a mock that
+    // returned 404 would hide exactly that bug (and did, historically).
+    return new Response(readFileSync(join(distDir, "index.html")), {
+      status: 200,
+      headers: { "Content-Type": "text/html; charset=utf-8" },
+    });
   }
   const contentType = pathname.startsWith("/v1/")
     ? "application/schema+json"
-    : "application/octet-stream";
+    : candidate.endsWith(".html") || pathname === "/"
+      ? "text/html; charset=utf-8"
+      : "application/octet-stream";
   return new Response(readFileSync(candidate), {
     status: 200,
     headers: { "Content-Type": contentType },
