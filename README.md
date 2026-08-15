@@ -1,57 +1,64 @@
 # KYA-OS Schema
 
-The single source of truth for the KYA-OS protocol's machine-readable
-artifacts: the normative JSON Schemas, the specification site, and the
-compatibility registry.
+The canonical registry of machine-readable artifacts for the
+[KYA-OS protocol](https://kya-os.org): every normative JSON Schema, versioned
+and immutable, served at a stable `$id` URL.
 
-This repository holds:
+KYA-OS v1 is a ratified specification of the
+[DIF Trusted Agents & Authority Working Group](https://identity.foundation/working-groups/trusted-agents.html).
+The specification of record lives in
+[`kya-os/kya-os`](https://github.com/kya-os/kya-os); the reference
+implementation is [`@kya-os/mcp`](https://github.com/decentralized-identity/kya-os-mcp)
+on npm.
 
-- **`packages/protocol-core/`** — the donation-sync generator, drift gate, and
-  publication tests. It pins `@kya-os/mcp` 1.11.0 as the canonical source for
-  every schema shipped by the donated package.
-- **`schemas/`** — the published, versioned JSON Schema tree. Each document is
-  served at its `$id` (for example `…/v1/protocol/proof/detached/v1.0.0`) so
-  that `$ref` resolution and external validators work against a stable URL.
-- **`site/`** — the specification site: normative prose, the protocol
-  primitives, and the transport bindings.
-- **`registry/`** — the compatibility registry. Identity providers and
-  implementations submit a declarative entry by pull request; a merged entry is
-  published in the registry index and listed as KYA-OS compatible.
+## Using the schemas
 
-## Schema URLs
+Every schema is published at its canonical `$id` under
+`https://schema.kya-os.org/v1/protocol/`, served with
+`Content-Type: application/schema+json` and open CORS, so any JSON Schema
+validator can fetch and resolve it from any origin:
 
-Schema `$id`s are templated from a single base URL so the publishing host can
-move without per-document churn. The base URL defaults to the current host and
-is overridable by environment for the production host.
+```bash
+curl https://schema.kya-os.org/v1/protocol/proof/detached/v1.0.0
+```
 
-Run `pnpm run gen` to synchronize the byte-identical donated schemas. The
-registry also publishes external envelope schemas for signed entries,
-receipts, checkpoints, manifests, replay components, and complete replay
-bundles. These compose the immutable v1.11.0 component schemas and are checked
-against the package's runtime Zod contracts.
+Point a `$ref` or `$schema` field directly at the `$id`:
 
-## Publishing
+```json
+{ "$ref": "https://schema.kya-os.org/v1/protocol/delegation/credential/v1.0.0" }
+```
 
-The versioned schema tree is published to **Cloudflare Pages** at
-`https://schema.kya-os.org`. On every push to `main` that touches `schemas/`,
-the [`Deploy schemas`](./.github/workflows/deploy-schemas.yml) workflow builds
-the deploy artifact (`pnpm run build:pages` → `dist/`) and uploads it.
+Each document is served both extensionless (the canonical `$id`) and at the
+`.json` path. Machine-readable discovery of every published schema is at
+[`/schema-index.json`](https://schema.kya-os.org/schema-index.json); unknown
+routes return an RFC 9457 `application/problem+json` 404, never a fallback
+page.
 
-Each schema is served at both its canonical extensionless `$id`
-(`…/v1/protocol/proof/detached/v1.0.0`) and the `.json` path, with
-`Content-Type: application/schema+json`, open CORS, and a cache policy. A
-`schema-index.json` provides machine-readable discovery metadata for every
-published `$id`. Unknown routes return an RFC 9457-style
-`application/problem+json` response with status 404.
+**Immutability:** a published schema never changes in place. Breaking changes
+are published at a new version path, and superseded versions stay served — pin
+a version with confidence.
 
-CI and the deploy job run the same fail-closed sequence: unit/runtime parity
-tests, the donation drift gate, a production Pages build, and route smoke tests.
-The smoke gate verifies both an extensionless known schema route and the
-unknown-route problem response before `dist/` can be uploaded.
+## Repository layout
 
-**One-time setup (DIF Cloudflare account):** create a Pages project named
-`kya-os-schema`, bind `schema.kya-os.org` as its custom domain, and add the
-repository secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`.
+- **`schemas/`** — the published, versioned JSON Schema tree, mirrored
+  byte-for-byte to the serving host.
+- **`packages/protocol-core/`** — the synchronization generator, drift gate,
+  and publication tests. Donated schemas are pinned to an exact
+  [`@kya-os/mcp`](https://www.npmjs.com/package/@kya-os/mcp) release (see
+  `packages/protocol-core/package.json` for the current pin); the drift gate
+  fails CI if the published tree and the donated bytes ever diverge. The
+  registry also publishes external envelope schemas (signed entries, receipts,
+  checkpoints, manifests, replay bundles) that compose the immutable donated
+  component schemas and are checked against the package's runtime contracts.
+
+## Publishing pipeline
+
+The schema tree deploys to Cloudflare Pages at `https://schema.kya-os.org`.
+CI and the [deploy workflow](./.github/workflows/deploy-schemas.yml) run the
+same fail-closed sequence — unit and runtime-parity tests, the donation drift
+gate, a production Pages build, and route smoke tests covering both known
+schema routes and the unknown-route problem response — before any artifact can
+be uploaded. A deploy that would serve wrong bytes fails instead of shipping.
 
 ## Contributing
 
