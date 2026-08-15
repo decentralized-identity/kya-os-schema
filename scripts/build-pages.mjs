@@ -523,7 +523,15 @@ export default {
         ? url.pathname.slice(0, -1)
         : url.pathname;
     if (KNOWN_PATHS.has(candidate)) {
-      const response = await env.ASSETS.fetch(request);
+      // Fetch the NORMALIZED path, never the raw one: a trailing-slash
+      // request that passed the manifest check would otherwise miss the
+      // asset and fall through to the SPA index fallback, serving HTML
+      // stamped application/schema+json by the /v1/* header rule.
+      const target =
+        candidate === url.pathname
+          ? request
+          : new Request(new URL(candidate + url.search, url.origin).toString(), request);
+      const response = await env.ASSETS.fetch(target);
       if (response.status !== 404) return response;
     }
 

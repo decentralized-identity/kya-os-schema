@@ -125,10 +125,18 @@ const root = await worker.fetch(new Request(`${ORIGIN}/`), env);
 assert(root.status === 200, `root route returned ${root.status}`);
 assert(root.headers.get("content-type")?.startsWith("text/html"), "root route did not return HTML");
 
+// A trailing-slash request for a published schema must serve the schema
+// bytes via the normalized path - never the HTML fallback (the exact hole
+// Bugbot caught: gate on the normalized path, then fetch the raw one).
 const trailing = await worker.fetch(new Request(`${ORIGIN}${knownPath}/`), env);
+assert(trailing.status === 200, `trailing-slash route returned ${trailing.status}`);
 assert(
-  trailing.status === 200 || trailing.status === 404,
-  `trailing-slash route returned unexpected ${trailing.status}`,
+  trailing.headers.get("content-type")?.startsWith("application/schema+json"),
+  "trailing-slash route did not return schema JSON",
+);
+assert(
+  (await trailing.json()).$id === `${ORIGIN}${knownPath}`,
+  "trailing-slash route returned the wrong schema",
 );
 
 // A directory path with no document must fail closed, not serve the fallback.
