@@ -59,9 +59,9 @@ const requiredAuditIds = [
   "verification-report",
 ].map(auditId);
 
-describe("v1.11.0 audit schema publication", () => {
+describe("donated audit schema publication", () => {
   it("pins the exact donated package release", () => {
-    expect(donationPackage.version).toBe("1.11.0");
+    expect(donationPackage.version).toBe("1.14.0");
     expect(SCHEMA_BASE_URL).toBe(ORIGIN);
     expect(protocolSchemaId("audit", "event")).toBe(auditId("event"));
   });

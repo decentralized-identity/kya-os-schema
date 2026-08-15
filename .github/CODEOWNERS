@@ -1,12 +1,13 @@
 # Default owners for everything in the repo.
-*                       @kya-os/spec-maintainers
+# NOTE(transfer): org-scoped teams (@kya-os/*) silently stop resolving after
+# the repo transfers to decentralized-identity, so ownership is pinned to
+# individual accounts until DIF-org teams exist. Re-team once
+# decentralized-identity/kya-os-schema has its maintainer teams provisioned.
+*                       @H0BB5
 
 # The protocol-core source of truth and the published schema tree.
-/packages/protocol-core/ @kya-os/spec-maintainers
-/schemas/               @kya-os/spec-maintainers
+/packages/protocol-core/ @H0BB5
+/schemas/               @H0BB5
 
 # The specification site.
-/site/                  @kya-os/spec-maintainers
-
-# The compatibility registry is reviewed by the registry maintainers.
-/registry/              @kya-os/registry-maintainers
+/site/                  @H0BB5

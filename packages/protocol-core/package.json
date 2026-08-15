@@ -22,7 +22,7 @@
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
     "vitest": "3.1.1",
-    "@kya-os/mcp": "1.11.0",
+    "@kya-os/mcp": "1.14.0",
     "typescript": "^5.7.2"
   }
 }
