@@ -6,10 +6,9 @@ and immutable, served at a stable `$id` URL.
 
 KYA-OS v1 is a ratified specification of the
 [DIF Trusted Agents & Authority Working Group](https://identity.foundation/working-groups/trusted-agents.html).
-The specification of record lives in
-[`kya-os/kya-os`](https://github.com/kya-os/kya-os); the reference
-implementation is [`@kya-os/mcp`](https://github.com/decentralized-identity/kya-os-mcp)
-on npm.
+The specification of record and its reference implementation live in the
+DIF-hosted [`decentralized-identity/kya-os-mcp`](https://github.com/decentralized-identity/kya-os-mcp)
+(npm: [`@kya-os/mcp`](https://www.npmjs.com/package/@kya-os/mcp)).
 
 ## Using the schemas
 
