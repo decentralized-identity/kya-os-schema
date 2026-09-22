@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Donation pin `@kya-os/mcp` 1.14.0 → 1.16.2.** `schema.kya-os.org` now
+  serves what the reference implementation ships:
+  - `delegation/credential/v1.0.0`: `credentialStatus` accepts a
+    `BitstringStatusListEntry` (the W3C StatusList2021 successor) with `id`
+    optional, and the CRISP scope matcher accepts `path-prefix`. Consumers
+    have minted Bitstring entries since `@kya-os/id` 0.2.0; until this change
+    a validator loading the published schema rejected them.
+  - `well-known/v1.0.0`: `version` accepts a three-part protocol version and
+    `endpoints.handshake` is optional (the stateless profile has none).
+  - `proof/detached/v1.1.0` is new: the additive `prf` discriminator for
+    envelope-profile response proofs. `v1.0.0` is unchanged and still served.
+- **In-place changes are an audited ledger, not code.** The one-entry-per-path
+  migration map in `emit-schemas.mjs` could not record a second change to the
+  same schema. `packages/protocol-core/in-place-transitions.json` lists every
+  compatible widening applied at an existing `$id` as an exact
+  SHA-256 → SHA-256 transition with its upstream release and reason; the emit
+  step refuses anything not listed, and a test checks each path's entries
+  chain in order and end at the published bytes.
+- The donation pin is declared once, as the exact `@kya-os/mcp`
+  devDependency; the emit script and the publication test read it from
+  there instead of repeating it.
+
 ### Added
 
 - Complete audit schema publication from `@kya-os/mcp` v1.11.0, including

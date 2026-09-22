@@ -1,0 +1,33 @@
+{
+  "$comment": "Audited in-place changes to published schemas. A schema is immutable at its $id: any byte change needs a new version, EXCEPT a compatible widening that upstream (@kya-os/mcp) applied in place and that is recorded here. Each entry is one exact transition, current published SHA-256 -> donated SHA-256; entries for the same path chain in order and are append-only. scripts/emit-schemas.mjs refuses any change not listed; test/in-place-transitions.test.ts checks the chain ends at the published bytes.",
+  "transitions": [
+    {
+      "path": "well-known/v1.0.0.json",
+      "from": "5801be64d9e4967c88f1c49c38b906cbecd858d59c3cc103e42443e7ea1d27dc",
+      "to": "a728e17e5ad24e754723d92d296962805eb3272b4fadc26442e96477358ad407",
+      "upstream": "1.11.0",
+      "reason": "Additive: the optional `audit` capability object (auditability suite)."
+    },
+    {
+      "path": "identity/card/v1.1.0.json",
+      "from": "201783461c8a0ff11ae45272aaf1d8a3e244b1aaf5158073740c184aaa918a46",
+      "to": "23392b30b578d3a17a12923dd5f9d252fc32b77df89d49a81c870c2ff95e0a06",
+      "upstream": "1.14.0",
+      "reason": "Widening: `proofProfile` from const \"org.kya-os/proof@1\" to an enum that also accepts \"org.kya-os/proof.v1\" (terminal proof-profile naming, one-major compat window)."
+    },
+    {
+      "path": "well-known/v1.0.0.json",
+      "from": "a728e17e5ad24e754723d92d296962805eb3272b4fadc26442e96477358ad407",
+      "to": "6b1c04536f2b12464628f397954d26b275f082a4b1f23cbdfb82e8de581e7e33",
+      "upstream": "1.16.2",
+      "reason": "Widening: `version` also accepts a three-part protocol version (\"1.0.0\"), and `endpoints.handshake` is no longer required (the stateless card-proof profile has no handshake)."
+    },
+    {
+      "path": "delegation/credential/v1.0.0.json",
+      "from": "6eeb42d6ae828e965f370ac322127d783543559aa8ce9d73ad5630b08e08f71e",
+      "to": "8b57f3d19ba2bcc3e10f2b8c416e61ac8b90697b383a2c1758c684ee8d6d4e3a",
+      "upstream": "1.16.2",
+      "reason": "Widening: `credentialStatus.type` also accepts \"BitstringStatusListEntry\" (the W3C StatusList2021 successor) and `credentialStatus.id` is optional, per the Bitstring Status List spec; the CRISP scope matcher also accepts \"path-prefix\"."
+    }
+  ]
+}

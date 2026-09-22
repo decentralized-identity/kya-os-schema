@@ -61,7 +61,11 @@ const requiredAuditIds = [
 
 describe("donated audit schema publication", () => {
   it("pins the exact donated package release", () => {
-    expect(donationPackage.version).toBe("1.14.0");
+    // The pin lives in package.json alone; the resolved package must match it.
+    expect(donationPackage.version).toBe(
+      JSON.parse(readFileSync(join(here, "..", "package.json"), "utf8"))
+        .devDependencies["@kya-os/mcp"],
+    );
     expect(SCHEMA_BASE_URL).toBe(ORIGIN);
     expect(protocolSchemaId("audit", "event")).toBe(auditId("event"));
   });
