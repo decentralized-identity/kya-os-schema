@@ -33,6 +33,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Audit read-contract envelopes (SPEC-AUDIT-READ).** The eight request and
+  response `$id`s of the operator-facing audit read/replay API
+  (`audit/{head,list-entries,inclusion-proof,consistency-proof}-{request,response}/v1.0.0`)
+  were validated by `@kya-os/mcp` at runtime but 404'd on the schema host.
+  They are published as registry-owned schemas, strict at every level, and
+  reuse the published signed-entry and bundle-proof schemas by `$ref`. A
+  parity test holds each one to the runtime validator on a valid value, an
+  unknown field, and every enforced boundary (decimal form and length, the
+  1..1000 page limit, required proof fields, the envelope's own `$id`).
 - Complete audit schema publication from `@kya-os/mcp` v1.11.0, including
   producer events, recorder entry/receipt cores, checkpoints, observations,
   supporting anchors, Merkle proofs, verification policy/report, and signed

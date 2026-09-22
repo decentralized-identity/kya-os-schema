@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.kya-os.org/v1/protocol/audit/inclusion-proof-response/v1.0.0",
+  "title": "KYA-OS Audit Inclusion Proof Response v1",
+  "description": "Wire envelope of the operator-facing audit read/replay API (SPEC-AUDIT-READ), matching the @kya-os/mcp 1.16.2 runtime contract (`@kya-os/mcp/audit` read-contract).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "proof"],
+  "properties": {
+    "schema": {
+      "const": "https://schema.kya-os.org/v1/protocol/audit/inclusion-proof-response/v1.0.0"
+    },
+    "proof": {
+      "$ref": "https://schema.kya-os.org/v1/protocol/audit/bundle-inclusion-proof/v1.0.0"
+    }
+  }
+}
