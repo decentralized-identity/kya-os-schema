@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.kya-os.org/v1/protocol/audit/list-entries-request/v1.0.0",
+  "title": "KYA-OS Audit List Entries Request v1",
+  "description": "Wire envelope of the operator-facing audit read/replay API (SPEC-AUDIT-READ), matching the @kya-os/mcp 1.16.2 runtime contract (`@kya-os/mcp/audit` read-contract).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "ledger"],
+  "properties": {
+    "schema": {
+      "const": "https://schema.kya-os.org/v1/protocol/audit/list-entries-request/v1.0.0"
+    },
+    "ledger": {
+      "$ref": "https://schema.kya-os.org/v1/protocol/audit/head-request/v1.0.0#/$defs/ledgerRef"
+    },
+    "afterSequence": {
+      "$ref": "#/$defs/decimal"
+    },
+    "limit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1000
+    }
+  },
+  "$defs": {
+    "decimal": {
+      "type": "string",
+      "maxLength": 20,
+      "pattern": "^(0|[1-9][0-9]*)$"
+    }
+  }
+}
