@@ -189,7 +189,7 @@ describe("donated audit schema publication", () => {
     ).toBe(false);
   });
 
-  it("publishes the Checkpoint <-> mcp-i-cloudflare deployment binding contract", () => {
+  it("publishes the Checkpoint <-> Cloudflare Workers runtime deployment binding contract", () => {
     const validate = catalogValidator().getSchema(auditId("deployment-binding"));
     const binding = {
       schema: auditId("deployment-binding"),

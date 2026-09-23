@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schema.kya-os.org/v1/protocol/audit/deployment-binding/v1.0.0",
   "title": "KYA-OS Audit Deployment Binding v1",
-  "description": "Signed deployment configuration binding a managed KYA-OS audit deployment to the protocol. Cross-repo contract: produced by Checkpoint's managed audit provisioning service and consumed (KYA_OS_AUDIT_CONFIG) by @kya-os/mcp-i-cloudflare's parseBinding.",
+  "description": "Signed deployment configuration binding a managed KYA-OS audit deployment to the protocol. Cross-repo contract: produced by Checkpoint's managed audit provisioning service and consumed (KYA_OS_AUDIT_CONFIG) by the Cloudflare Workers audit runtime's deployment-binding parser.",
   "type": "object",
   "additionalProperties": false,
   "required": [
