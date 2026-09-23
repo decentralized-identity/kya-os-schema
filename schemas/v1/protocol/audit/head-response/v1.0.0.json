@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.kya-os.org/v1/protocol/audit/head-response/v1.0.0",
+  "title": "KYA-OS Audit Head Response v1",
+  "description": "Wire envelope of the operator-facing audit read/replay API (SPEC-AUDIT-READ), matching the @kya-os/mcp 1.16.2 runtime contract (`@kya-os/mcp/audit` read-contract).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "head"],
+  "properties": {
+    "schema": {
+      "const": "https://schema.kya-os.org/v1/protocol/audit/head-response/v1.0.0"
+    },
+    "head": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/head"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "head": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ledgerId", "ledgerEpochId", "sequence", "entryDigest"],
+      "description": "The ledger's latest committed entry. Shared by head and list-entries responses.",
+      "properties": {
+        "ledgerId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "ledgerEpochId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "sequence": {
+          "$ref": "#/$defs/decimal"
+        },
+        "entryDigest": {
+          "$ref": "#/$defs/digest"
+        }
+      }
+    },
+    "decimal": {
+      "type": "string",
+      "maxLength": 20,
+      "pattern": "^(0|[1-9][0-9]*)$"
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    }
+  }
+}
