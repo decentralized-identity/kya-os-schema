@@ -11,37 +11,32 @@ import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const EXPECTED_DONATION_VERSION = "1.14.0";
 const ORIGIN = "https://schema.kya-os.org";
 const PREFIX = "/v1/protocol/";
-const ONE_TIME_DONATION_MIGRATIONS = new Map([
-  [
-    "well-known/v1.0.0.json",
-    {
-      from: "5801be64d9e4967c88f1c49c38b906cbecd858d59c3cc103e42443e7ea1d27dc",
-      to: "a728e17e5ad24e754723d92d296962805eb3272b4fadc26442e96477358ad407",
-    },
-  ],
-  [
-    // 1.11.0 -> 1.14.0 pin bump: upstream applied the terminal proof-profile
-    // naming (kya-os-mcp v1.12.0) to the published card in place, widening
-    // `proofProfile` from `const "org.kya-os/proof@1"` to an enum that also
-    // accepts "org.kya-os/proof.v1" - the documented one-major compat window.
-    // Compatible widening only; no structural change, so no version bump was
-    // minted upstream. Same policy as the settings schema's in-place update.
-    "identity/card/v1.1.0.json",
-    {
-      from: "201783461c8a0ff11ae45272aaf1d8a3e244b1aaf5158073740c184aaa918a46",
-      to: "23392b30b578d3a17a12923dd5f9d252fc32b77df89d49a81c870c2ff95e0a06",
-    },
-  ],
-]);
 
 const here = dirname(fileURLToPath(import.meta.url));
 const packageRoot = join(here, "..");
 const repoRoot = join(packageRoot, "..", "..");
 const publishedRoot = join(repoRoot, "schemas", "v1", "protocol");
 const require = createRequire(import.meta.url);
+
+// The donation pin lives in one place: this package's exact devDependency.
+const EXPECTED_DONATION_VERSION = JSON.parse(
+  readFileSync(join(packageRoot, "package.json"), "utf8"),
+).devDependencies["@kya-os/mcp"];
+if (!/^\d+\.\d+\.\d+$/.test(EXPECTED_DONATION_VERSION)) {
+  throw new Error(
+    `@kya-os/mcp must be pinned to an exact version, found ${EXPECTED_DONATION_VERSION}`,
+  );
+}
+
+// Audited in-place widenings: see in-place-transitions.json.
+const { transitions } = JSON.parse(
+  readFileSync(join(packageRoot, "in-place-transitions.json"), "utf8"),
+);
+const isAuditedTransition = (path, from, to) =>
+  transitions.some((t) => t.path === path && t.from === from && t.to === to);
+
 const donationPackagePath = require.resolve("@kya-os/mcp/package.json");
 const donationPackage = JSON.parse(readFileSync(donationPackagePath, "utf8"));
 const donationRoot = join(dirname(donationPackagePath), "schemas");
@@ -79,15 +74,12 @@ for (const name of readdirSync(donationRoot).sort()) {
   if (existsSync(target)) {
     const publishedBytes = readFileSync(target, "utf8");
     if (publishedBytes !== bytes) {
-      const migration = ONE_TIME_DONATION_MIGRATIONS.get(relativePath);
       const currentDigest = sha256(publishedBytes);
       const donatedDigest = sha256(bytes);
-      if (
-        migration?.from !== currentDigest ||
-        migration.to !== donatedDigest
-      ) {
+      if (!isAuditedTransition(relativePath, currentDigest, donatedDigest)) {
         throw new Error(
-          `Immutable schema conflict at ${relativePath}; publish a new schema version instead`,
+          `Immutable schema conflict at ${relativePath} (${currentDigest} -> ${donatedDigest}); ` +
+            "publish a new schema version, or record an audited compatible widening in in-place-transitions.json",
         );
       }
       writeFileSync(target, bytes);

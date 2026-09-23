@@ -15,8 +15,8 @@ importers:
   packages/protocol-core:
     devDependencies:
       '@kya-os/mcp':
-        specifier: 1.14.0
-        version: 1.14.0
+        specifier: 1.16.2
+        version: 1.16.2
       '@types/node':
         specifier: ^22.10.2
         version: 22.20.1
@@ -502,8 +502,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
 
-  '@kya-os/mcp@1.14.0':
-    resolution: {integrity: sha512-Z96Qz+N6fj9z0ddAGxuuewdTr96SqSkRVx0ZOgQDmMTOLGCgezDApfexWvSayMKQecEdctdQ05ZA6RSA/EX1Ag==}
+  '@kya-os/mcp@1.16.2':
+    resolution: {integrity: sha512-z74maXqhIAehAY/aIQsrrmWZtezbBgntc4gKz4DP9WOZwWBg5PLtgISg99k6CVrqoNBj3PycINS+LBPxcNaFaA==}
     hasBin: true
     peerDependencies:
       '@modelcontextprotocol/sdk': '>=1.0.0'
@@ -820,8 +820,8 @@ packages:
   is-arrayish@0.3.4:
     resolution: {integrity: sha512-m6UrgzFVUYawGBh1dUsWR5M2Clqic9RVXC/9f8ceNlv2IcO9j9J/z8UoCLPqtsPBFNzEpfR3xftohbfqDx8EQA==}
 
-  jose@6.2.4:
-    resolution: {integrity: sha512-N8acGzVsQy6M/fjFcxtysNc4Q379TcM5dM/qKkNtsHFji88yANnXTr7BLeP75iPnFwBfQzM/jg2BZ9+HZrHCZA==}
+  jose@6.2.12:
+    resolution: {integrity: sha512-9NiFmJEex0sy2Dk58j2UGBSHgUs2ypF9eZSu4L6vjOX3Dp96Sw1F3uL+H+D1sx02jZZdzUT0HgvCy59CuvXcWw==}
 
   json-canonicalize@2.0.0:
     resolution: {integrity: sha512-yyrnK/mEm6Na3ChbJUWueXdapueW0p380RUyTW87XGb1ww8l8hU0pRrGC3vSWHe9CxrbPHX2fGUOZpNiHR0IIg==}
@@ -1379,9 +1379,9 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@kya-os/mcp@1.14.0':
+  '@kya-os/mcp@1.16.2':
     dependencies:
-      jose: 6.2.4
+      jose: 6.2.12
       json-canonicalize: 2.0.0
       zod: 4.4.3
 
@@ -1671,7 +1671,7 @@ snapshots:
   is-arrayish@0.3.4:
     optional: true
 
-  jose@6.2.4: {}
+  jose@6.2.12: {}
 
   json-canonicalize@2.0.0: {}
 
