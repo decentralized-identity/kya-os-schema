@@ -1,0 +1,182 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.kya-os.org/v1/protocol/audit/deployment-binding/v1.0.0",
+  "title": "KYA-OS Audit Deployment Binding v1",
+  "description": "Signed deployment configuration binding a managed KYA-OS audit deployment to the protocol. Cross-repo contract: produced by Checkpoint's managed audit provisioning service and consumed (KYA_OS_AUDIT_CONFIG) by the Cloudflare Workers audit runtime's deployment-binding parser.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "config",
+    "readiness",
+    "protocolBinding",
+    "tenantRef",
+    "producerRef",
+    "recorderSigner",
+    "recorderPublicJwk",
+    "secretReferences"
+  ],
+  "properties": {
+    "schema": {
+      "const": "https://schema.kya-os.org/v1/protocol/audit/deployment-binding/v1.0.0"
+    },
+    "config": { "$ref": "#/$defs/deploymentConfig" },
+    "readiness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requestedProfile", "effectiveProfile", "status", "reasonCodes", "canary"],
+      "properties": {
+        "requestedProfile": { "$ref": "#/$defs/assuranceProfile" },
+        "effectiveProfile": { "$ref": "#/$defs/assuranceProfile" },
+        "status": { "enum": ["disabled", "ready", "degraded"] },
+        "reasonCodes": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "maxLength": 128 }
+        },
+        "canary": {
+          "oneOf": [{ "$ref": "#/$defs/runtimeCanaryResult" }, { "type": "null" }]
+        }
+      }
+    },
+    "protocolBinding": {
+      "type": "string",
+      "pattern": "^urn:kya-os:audit-binding:"
+    },
+    "tenantRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "did"],
+      "properties": {
+        "kind": { "const": "pairwise_did" },
+        "did": { "$ref": "#/$defs/did" }
+      }
+    },
+    "producerRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "did"],
+      "properties": {
+        "kind": { "const": "public_did" },
+        "did": { "$ref": "#/$defs/did" }
+      }
+    },
+    "recorderSigner": { "$ref": "#/$defs/signerRef" },
+    "recorderPublicJwk": {
+      "type": "object",
+      "required": ["kty"],
+      "properties": {
+        "kty": { "type": "string", "minLength": 1 }
+      }
+    },
+    "secretReferences": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["producerInternalToken", "referenceSecret"],
+      "properties": {
+        "producerInternalToken": { "const": "KYA_OS_AUDIT_PRODUCER_INTERNAL_TOKEN" },
+        "referenceSecret": { "const": "KYA_OS_AUDIT_REFERENCE_SECRET" },
+        "evidenceKey": { "const": "KYA_OS_AUDIT_EVIDENCE_KEY" }
+      }
+    }
+  },
+  "$defs": {
+    "did": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 2048,
+      "pattern": "^did:[^\\r\\n]+$"
+    },
+    "signerRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["did", "kid", "alg"],
+      "properties": {
+        "did": { "$ref": "#/$defs/did" },
+        "kid": { "type": "string", "minLength": 1, "maxLength": 2304 },
+        "alg": { "enum": ["EdDSA", "ES256"] }
+      }
+    },
+    "assuranceProfile": {
+      "enum": ["AAP-0", "AAP-1", "AAP-2", "AAP-3", "AAP-4"]
+    },
+    "deploymentConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "requestedProfile",
+        "delivery",
+        "evidenceMode",
+        "retentionClass",
+        "retentionDays",
+        "residency",
+        "keyCustody",
+        "recorderTopology"
+      ],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "requestedProfile": { "$ref": "#/$defs/assuranceProfile" },
+        "delivery": { "enum": ["best-effort", "buffered", "required"] },
+        "evidenceMode": { "enum": ["none", "encrypted-separate", "encrypted-inline"] },
+        "retentionClass": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "retentionDays": { "type": "integer", "minimum": 0, "maximum": 3650 },
+        "residency": { "enum": ["inherit-project", "us", "eu", "global"] },
+        "keyCustody": { "enum": ["none", "checkpoint-managed", "customer-managed-kms"] },
+        "recorderTopology": { "enum": ["none", "self-hosted", "managed", "verified-mirror"] }
+      }
+    },
+    "runtimeCapabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recorderTopology",
+        "delivery",
+        "journalDurability",
+        "atomicAppend",
+        "sourceHighWater",
+        "merkleCheckpoints",
+        "independentObservation",
+        "supportingAnchors",
+        "evidenceRetention"
+      ],
+      "properties": {
+        "recorderTopology": { "enum": ["none", "self-hosted", "managed", "verified-mirror"] },
+        "delivery": { "enum": ["best-effort", "buffered", "required"] },
+        "journalDurability": { "enum": ["none", "ephemeral", "durable"] },
+        "atomicAppend": { "type": "boolean" },
+        "sourceHighWater": { "type": "boolean" },
+        "merkleCheckpoints": { "type": "boolean" },
+        "independentObservation": { "type": "boolean" },
+        "supportingAnchors": {
+          "type": "array",
+          "items": { "enum": ["worm", "rfc3161", "scitt"] }
+        },
+        "evidenceRetention": { "enum": ["none", "inline", "separate"] }
+      }
+    },
+    "runtimeCanaryResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["passed", "observedAt", "capabilities", "checks"],
+      "properties": {
+        "passed": { "type": "boolean" },
+        "observedAt": { "type": "integer", "minimum": 0 },
+        "capabilities": { "$ref": "#/$defs/runtimeCapabilities" },
+        "checks": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "passed"],
+            "properties": {
+              "id": { "type": "string", "minLength": 1, "maxLength": 128 },
+              "passed": { "type": "boolean" }
+            }
+          }
+        },
+        "bundleHash": { "type": "string", "minLength": 1, "maxLength": 256 }
+      }
+    }
+  }
+}
