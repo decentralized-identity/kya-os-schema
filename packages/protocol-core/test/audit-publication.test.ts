@@ -56,6 +56,7 @@ const requiredAuditIds = [
   "inclusion-proof-response",
   "consistency-proof-request",
   "consistency-proof-response",
+  "deployment-binding",
 ].map(auditId);
 
 describe("donated audit schema publication", () => {
@@ -185,6 +186,79 @@ describe("donated audit schema publication", () => {
         ...response,
         verification: { ...response.verification, ledgerChain: "pending" },
       }),
+    ).toBe(false);
+  });
+
+  it("publishes the Checkpoint <-> mcp-i-cloudflare deployment binding contract", () => {
+    const validate = catalogValidator().getSchema(auditId("deployment-binding"));
+    const binding = {
+      schema: auditId("deployment-binding"),
+      config: {
+        enabled: true,
+        requestedProfile: "AAP-2",
+        delivery: "buffered",
+        evidenceMode: "encrypted-separate",
+        retentionClass: "integrity-ledger",
+        retentionDays: 365,
+        residency: "inherit-project",
+        keyCustody: "checkpoint-managed",
+        recorderTopology: "managed",
+      },
+      readiness: {
+        requestedProfile: "AAP-2",
+        effectiveProfile: "AAP-2",
+        status: "ready",
+        reasonCodes: [],
+        canary: {
+          passed: true,
+          observedAt: 1_750_000_000_000,
+          capabilities: {
+            recorderTopology: "managed",
+            delivery: "buffered",
+            journalDurability: "durable",
+            atomicAppend: true,
+            sourceHighWater: true,
+            merkleCheckpoints: false,
+            independentObservation: false,
+            supportingAnchors: [],
+            evidenceRetention: "separate",
+          },
+          checks: [{ id: "recorder_round_trip", passed: true }],
+        },
+      },
+      protocolBinding: "urn:kya-os:audit-binding:mcp:2025-11-25",
+      tenantRef: { kind: "pairwise_did", did: "did:key:zTenant" },
+      producerRef: { kind: "public_did", did: "did:key:zProducer" },
+      recorderSigner: { did: "did:key:zRecorder", kid: "did:key:zRecorder#key-1", alg: "EdDSA" },
+      recorderPublicJwk: { kty: "OKP", crv: "Ed25519", x: "base64url-x" },
+      secretReferences: {
+        producerInternalToken: "KYA_OS_AUDIT_PRODUCER_INTERNAL_TOKEN",
+        referenceSecret: "KYA_OS_AUDIT_REFERENCE_SECRET",
+      },
+    };
+
+    expect(validate).toBeTypeOf("function");
+    expect(validate?.(binding)).toBe(true);
+    expect(
+      validate?.({ ...binding, tenantRef: { kind: "public_did", did: "did:key:zTenant" } }),
+      "tenantRef must stay pairwise_did, not any PartyRef kind",
+    ).toBe(false);
+    expect(
+      validate?.({ ...binding, readiness: { ...binding.readiness, canary: null } }),
+      "a null canary must still validate",
+    ).toBe(true);
+    expect(
+      validate?.({ ...binding, protocolBinding: "urn:other:binding:1" }),
+      "protocolBinding must be a kya-os audit-binding URN",
+    ).toBe(false);
+    const { secretReferences, ...withoutSecretReferences } = binding;
+    expect(
+      validate?.(withoutSecretReferences),
+      "secretReferences is required",
+    ).toBe(false);
+    expect(
+      validate?.({ ...binding, unknownCriticalField: true }),
+      "additional top-level properties must be rejected",
     ).toBe(false);
   });
 });
