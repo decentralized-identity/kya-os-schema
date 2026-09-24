@@ -3,7 +3,7 @@
 Thank you for your interest in contributing. This repository is the source of
 truth for the KYA-OS (Know Your Agent Operating System) protocol's JSON Schemas,
 specification site, and compatibility registry, developed in the
-[DIF Trust and Authorization for AI Agents Working Group (TAAWG)](https://identity.foundation/working-groups/agent-and-authorization.html).
+[DIF Trusted AI Agents Working Group (TAAWG)](https://identity.foundation/working-groups/trusted-agents.html).
 
 Contributions are welcome: schema clarifications, spec prose, registry entries,
 tooling, and test improvements.

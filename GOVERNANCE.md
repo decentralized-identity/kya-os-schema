@@ -47,9 +47,8 @@ maintainers:
 
 ## Relationship to DIF TAAWG
 
-The KYA-OS protocol is donated to the **Decentralized Identity Foundation (DIF)
-Trust and Authorization for AI Agents Working Group (TAAWG)** and is under
-review there for ratification.
+The KYA-OS protocol was donated to the **Decentralized Identity Foundation (DIF)
+Trusted AI Agents Working Group (TAAWG)** and ratified there as a DIF standard.
 
 - **Spec decisions** are made in the working group.
 - **Schema and publishing decisions** are made here, tracking the authoritative

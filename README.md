@@ -4,8 +4,8 @@ The canonical registry of machine-readable artifacts for the
 [KYA-OS protocol](https://kya-os.org): every normative JSON Schema, versioned
 and immutable, served at a stable `$id` URL.
 
-KYA-OS v1 is a ratified specification of the
-[DIF Trusted Agents & Authority Working Group](https://identity.foundation/working-groups/trusted-agents.html).
+KYA-OS v1 was ratified as a DIF standard by the
+[DIF Trusted AI Agents Working Group (TAAWG)](https://identity.foundation/working-groups/trusted-agents.html).
 The specification of record and its reference implementation live in the
 DIF-hosted [`decentralized-identity/kya-os-mcp`](https://github.com/decentralized-identity/kya-os-mcp)
 (npm: [`@kya-os/mcp`](https://www.npmjs.com/package/@kya-os/mcp)).
