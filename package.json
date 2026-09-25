@@ -4,7 +4,7 @@
   "private": true,
   "description": "Source of truth for the KYA-OS protocol schemas, specification site, and compatibility registry",
   "type": "module",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "engines": {
     "node": ">=20"
   },

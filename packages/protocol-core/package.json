@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "KYA-OS protocol schema definitions and JSON Schema generator (source of truth)",
   "type": "module",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "publishConfig": {
     "access": "public"
   },
