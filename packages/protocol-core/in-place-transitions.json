@@ -28,6 +28,13 @@
       "to": "8b57f3d19ba2bcc3e10f2b8c416e61ac8b90697b383a2c1758c684ee8d6d4e3a",
       "upstream": "1.16.2",
       "reason": "Widening: `credentialStatus.type` also accepts \"BitstringStatusListEntry\" (the W3C StatusList2021 successor) and `credentialStatus.id` is optional, per the Bitstring Status List spec; the CRISP scope matcher also accepts \"path-prefix\"."
+    },
+    {
+      "path": "identity/card/v1.1.0.json",
+      "from": "23392b30b578d3a17a12923dd5f9d252fc32b77df89d49a81c870c2ff95e0a06",
+      "to": "c572bc3409686dbfd1fcf71c536e9c7d6e7e45d340331f27fc952e3f73b34e2b",
+      "upstream": "1.23.0",
+      "reason": "Widening: the Card's `revocation` entry, which admits no other members, also accepts the optional Bitstring Status List v1.0 members `statusSize` (an integer of at least 1) and `statusMessage` (an array of objects, each with a string `status` and a string `message`)."
     }
   ]
 }
