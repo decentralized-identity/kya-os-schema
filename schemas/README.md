@@ -36,6 +36,7 @@ schemas share the tree with the audit artifacts below.
 | `audit/verification-policy/v1.0.0` | Out-of-band historical trust policy |
 | `audit/verification-report/v1.0.0` | Multi-dimensional offline verification result |
 | `audit/record/v1.0.0` | Legacy portable audit-record projection |
+| `audit/deployment-binding/v1.0.0` | Signed binding of a managed deployment's audit config to the protocol (Checkpoint ⇄ the Cloudflare Workers audit runtime) |
 
 ## Versioning
 

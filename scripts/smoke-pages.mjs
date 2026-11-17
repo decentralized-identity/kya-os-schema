@@ -35,6 +35,7 @@ const REQUIRED_AUDIT_IDS = [
   "ingest-response",
   "verification-policy",
   "verification-report",
+  "deployment-binding",
 ].map((name) => `${ORIGIN}/v1/protocol/audit/${name}/v1.0.0`);
 
 assert(existsSync(distDir), "dist/ is missing; run build:pages first");
