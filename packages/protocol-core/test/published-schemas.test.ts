@@ -21,8 +21,33 @@ const EXPECTED = [
     title: "KYA-OS Delegation Credential",
   },
   {
+    file: "delegation/credential/v1.0.1.json",
+    id: "https://schema.kya-os.org/v1/protocol/delegation/credential/v1.0.1",
+    title: "KYA-OS Delegation Credential",
+  },
+  {
+    file: "delegation/credential/v1.2.0.json",
+    id: "https://schema.kya-os.org/v1/protocol/delegation/credential/v1.2.0",
+    title: "KYA-OS Delegation Credential (W3C VC 2.0 + ZCAP-LD profile)",
+  },
+  {
+    file: "delegation/credential/v1.1.0.json",
+    id: "https://schema.kya-os.org/v1/protocol/delegation/credential/v1.1.0",
+    title: "KYA-OS Delegation Credential (W3C VC 2.0 + ZCAP-LD profile)",
+  },
+  {
     file: "proof/detached/v1.0.0.json",
     id: "https://schema.kya-os.org/v1/protocol/proof/detached/v1.0.0",
+    title: "KYA-OS Detached Proof",
+  },
+  {
+    file: "proof/detached/v1.1.0.json",
+    id: "https://schema.kya-os.org/v1/protocol/proof/detached/v1.1.0",
+    title: "KYA-OS Detached Proof",
+  },
+  {
+    file: "proof/detached/v1.2.0.json",
+    id: "https://schema.kya-os.org/v1/protocol/proof/detached/v1.2.0",
     title: "KYA-OS Detached Proof",
   },
   {
