@@ -51,6 +51,16 @@ const EXPECTED = [
     title: "KYA-OS Detached Proof",
   },
   {
+    file: "identity/card/v1.1.0.json",
+    id: "https://schema.kya-os.org/v1/protocol/identity/card/v1.1.0",
+    title: "KYA-OS Entity Card",
+  },
+  {
+    file: "identity/card/v1.2.0.json",
+    id: "https://schema.kya-os.org/v1/protocol/identity/card/v1.2.0",
+    title: "KYA-OS Entity Card",
+  },
+  {
     file: "handshake/request/v1.0.0.json",
     id: "https://schema.kya-os.org/v1/protocol/handshake/request/v1.0.0",
     title: "KYA-OS Handshake Request",
